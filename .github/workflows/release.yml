@@ -1,0 +1,34 @@
+name: Release
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: |
+          yarn install --cwd example --frozen-lockfile
+          yarn install --frozen-lockfile
+
+      - name: Build package
+        run: yarn prepack
+
+      - name: Publish to npm
+        run: npm publish --access public --provenance
