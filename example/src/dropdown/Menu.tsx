@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { StyleSheet, Dimensions, View } from 'react-native';
-import { Dropdown, IDropdownRef } from 'react-native-element-dropdown';
+import { Dropdown, IDropdownRef } from '@carlos3g/element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const data = [

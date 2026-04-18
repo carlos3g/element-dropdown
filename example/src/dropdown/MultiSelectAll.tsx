@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { IMultiSelectRef, MultiSelect } from 'react-native-element-dropdown';
+import { IMultiSelectRef, MultiSelect } from '@carlos3g/element-dropdown';
 
 const data = [
   { label: 'Item 1', value: '1' },

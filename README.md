@@ -1,7 +1,24 @@
 [<img src="https://github.com/hoaphantn7604/file-upload/blob/master/document/dropdown/react-native-element-dropdown-demo.png">](https://github.com/hoaphantn7604/file-upload/blob/master/document/dropdown/react-native-element-dropdown-demo.png)
 
-# react-native-element-dropdown
-React Native Element Dropdown is a library that provides a customizable dropdown component for React Native applications. This library simplifies the process of creating dropdown menus and provides a variety of options to customize the dropdown to match the design and functionality of your application.
+# @carlos3g/element-dropdown
+
+> **Actively maintained fork of [react-native-element-dropdown](https://github.com/hoaphantn7604/react-native-element-dropdown).**
+> The original package has been unmaintained for a long time, with many unresolved issues and pull requests. This fork aims to keep it alive: fixing bugs, reviewing community PRs, modernizing tooling, and adding new features.
+>
+> **Migrating from `react-native-element-dropdown`:** just change the import path and the install name. The public API is unchanged.
+>
+> ```sh
+> npm install @carlos3g/element-dropdown
+> # or
+> yarn add @carlos3g/element-dropdown
+> ```
+>
+> ```diff
+> - import { Dropdown } from 'react-native-element-dropdown';
+> + import { Dropdown } from '@carlos3g/element-dropdown';
+> ```
+
+A customizable dropdown component for React Native applications. This library simplifies the process of creating dropdown menus and provides a variety of options to customize the dropdown to match the design and functionality of your application.
 
 ## Features
 * Dropdown and Multiselect in one package
@@ -19,12 +36,12 @@ If you love this library, give us a star, you will be a ray of sunshine in our l
 
 ## Getting started
 ```js
-npm install react-native-element-dropdown --save
+npm install @carlos3g/element-dropdown --save
 ```
 or
 
 ```js
-yarn add react-native-element-dropdown
+yarn add @carlos3g/element-dropdown
 ```
 ### Demo
 
@@ -172,7 +189,7 @@ yarn add react-native-element-dropdown
 ```js
   import React, { useState } from 'react';
   import { StyleSheet, Text, View } from 'react-native';
-  import { Dropdown } from 'react-native-element-dropdown';
+  import { Dropdown } from '@carlos3g/element-dropdown';
   import AntDesign from '@expo/vector-icons/AntDesign';
 
   const data = [
@@ -285,7 +302,7 @@ yarn add react-native-element-dropdown
 ```javascript
   import React, { useState } from 'react';
   import { StyleSheet } from 'react-native';
-  import { Dropdown } from 'react-native-element-dropdown';
+  import { Dropdown } from '@carlos3g/element-dropdown';
   import AntDesign from '@expo/vector-icons/AntDesign';
 
   const data = [
@@ -361,7 +378,7 @@ yarn add react-native-element-dropdown
 ```javascript
   import React, { useState } from 'react';
   import { StyleSheet, View, Text } from 'react-native';
-  import { Dropdown } from 'react-native-element-dropdown';
+  import { Dropdown } from '@carlos3g/element-dropdown';
   import AntDesign from '@expo/vector-icons/AntDesign';
 
   const data = [
@@ -474,7 +491,7 @@ yarn add react-native-element-dropdown
 ```js
   import React, { useState } from 'react';
   import { StyleSheet, View } from 'react-native';
-  import { MultiSelect } from 'react-native-element-dropdown';
+  import { MultiSelect } from '@carlos3g/element-dropdown';
   import AntDesign from '@expo/vector-icons/AntDesign';
 
   const data = [
@@ -561,7 +578,7 @@ yarn add react-native-element-dropdown
 ```js
   import React, { useState } from 'react';
   import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
-  import { MultiSelect } from 'react-native-element-dropdown';
+  import { MultiSelect } from '@carlos3g/element-dropdown';
   import AntDesign from '@expo/vector-icons/AntDesign';
 
   const data = [
@@ -701,7 +718,7 @@ yarn add react-native-element-dropdown
 ```js
   import React, { useState } from 'react';
   import { StyleSheet } from 'react-native';
-  import { SelectCountry } from 'react-native-element-dropdown';
+  import { SelectCountry } from '@carlos3g/element-dropdown';
 
   const local_data = [
     {
@@ -804,7 +821,7 @@ yarn add react-native-element-dropdown
 ```js
   import React, { useState } from 'react';
   import { StyleSheet } from 'react-native';
-  import { SelectCountry } from 'react-native-element-dropdown';
+  import { SelectCountry } from '@carlos3g/element-dropdown';
 
   const local_data = [
     {

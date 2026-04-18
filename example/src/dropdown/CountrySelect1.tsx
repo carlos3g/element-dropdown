@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { SelectCountry } from 'react-native-element-dropdown';
+import { SelectCountry } from '@carlos3g/element-dropdown';
 
 const local_data = [
   {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { MultiSelect } from 'react-native-element-dropdown';
+import { MultiSelect } from '@carlos3g/element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const data = [

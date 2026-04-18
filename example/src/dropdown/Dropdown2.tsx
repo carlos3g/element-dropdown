@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button, StyleSheet, View } from 'react-native';
-import { Dropdown, IDropdownRef } from 'react-native-element-dropdown';
+import { Dropdown, IDropdownRef } from '@carlos3g/element-dropdown';
 
 const data = [
   { label: 'Item 1', value: '1' },
