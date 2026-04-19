@@ -2,6 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
+import CInput from '../components/TextInput';
 import { DropdownSearchInput, DropdownSectionHeader } from '../internal';
 
 describe('DropdownSearchInput', () => {
@@ -172,5 +173,67 @@ describe('DropdownSectionHeader', () => {
       <DropdownSectionHeader section={section} allowFontScaling={false} />
     );
     expect(screen.getByText('Berries').props.allowFontScaling).toBe(false);
+  });
+});
+
+describe('CInput — controlled value sync', () => {
+  const Host = ({ initial = '' }: { initial?: string }) => {
+    const [value, setValue] = React.useState(initial);
+    return (
+      <>
+        <CInput
+          testID="cinput"
+          value={value}
+          onChangeText={setValue}
+          placeholder="Search"
+        />
+        <Text testID="resetter" onPress={() => setValue('')}>
+          reset
+        </Text>
+        <Text testID="setter" onPress={() => setValue('from parent')}>
+          set
+        </Text>
+      </>
+    );
+  };
+
+  it('seeds the input from a non-empty initial value on first render', () => {
+    render(<Host initial="hello" />);
+    expect(screen.getByTestId('cinput').props.value).toBe('hello');
+  });
+
+  it('seeds the input from an empty initial value on first render', () => {
+    render(<Host initial="" />);
+    expect(screen.getByTestId('cinput').props.value).toBe('');
+  });
+
+  it('syncs when the parent resets the value prop to empty string', () => {
+    // Regression for the `if (value) setText(value)` guard that used
+    // to silently skip empty strings, leaving stale text in the input
+    // when a parent resets `searchText` to ''.
+    render(<Host initial="stale" />);
+    expect(screen.getByTestId('cinput').props.value).toBe('stale');
+
+    fireEvent.press(screen.getByTestId('resetter'));
+    expect(screen.getByTestId('cinput').props.value).toBe('');
+  });
+
+  it('syncs when the parent flips between non-empty values', () => {
+    render(<Host initial="before" />);
+    expect(screen.getByTestId('cinput').props.value).toBe('before');
+
+    fireEvent.press(screen.getByTestId('setter'));
+    expect(screen.getByTestId('cinput').props.value).toBe('from parent');
+  });
+
+  it('still reports user typing through onChangeText', () => {
+    const onChangeText = jest.fn();
+    render(<CInput testID="cinput" value="" onChangeText={onChangeText} />);
+    fireEvent.changeText(screen.getByTestId('cinput'), 'typed');
+    expect(onChangeText).toHaveBeenCalledWith('typed');
+    // Internal state reflects the user typing even without the parent
+    // echoing it back — CInput remains usable in uncontrolled-like
+    // setups.
+    expect(screen.getByTestId('cinput').props.value).toBe('typed');
   });
 });

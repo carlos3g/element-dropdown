@@ -28,10 +28,16 @@ const TextInputComponent: CTextInput = (props) => {
     renderRightIcon,
   } = props;
 
-  const [text, setText] = useState<string>('');
+  // Seed from the first value prop so controlled callers don't flash an
+  // empty input before the sync-effect runs.
+  const [text, setText] = useState<string>(value ?? '');
 
+  // Sync whenever the controlled `value` prop changes — including back
+  // to ''. The previous `if (value) setText(value)` guard silently
+  // skipped empty strings, so a parent resetting `value` to '' left
+  // the input showing stale text.
   useEffect(() => {
-    if (value) {
+    if (value !== undefined) {
       setText(value);
     }
   }, [value]);
