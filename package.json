@@ -1,6 +1,6 @@
 {
   "name": "@carlos3g/element-dropdown",
-  "version": "2.12.4",
+  "version": "2.13.0",
   "description": "Maintained fork of react-native-element-dropdown: a customizable dropdown component for React Native applications.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
