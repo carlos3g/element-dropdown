@@ -5,7 +5,6 @@ import _findIndex from 'lodash/findIndex';
 import _get from 'lodash/get';
 import _isEqual from 'lodash/isEqual';
 
-import { debounce } from 'lodash';
 import React, {
   useCallback,
   useEffect,
@@ -270,38 +269,40 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       getValue();
     }, [value, data, getValue]);
 
-    const scrollIndex = debounce(
-      useCallback(() => {
-        if (
-          autoScroll &&
-          data?.length > 0 &&
-          listData?.length === data?.length
-        ) {
-          if (refList && refList?.current) {
-            const defaultValue =
-              typeof value === 'object' ? _get(value, valueField) : value;
+    const autoScrollTarget = useMemo(() => {
+      if (!autoScroll) return -1;
+      // Only auto-scroll when the list isn't filtered; otherwise the target
+      // index would be computed against the full dataset but applied to the
+      // filtered list, which is the source of scrollToIndex-out-of-range
+      // crashes (upstream #156, #202, #274, #275) and the snap-back during
+      // browsing (upstream #345).
+      if (!data?.length || listData?.length !== data.length) return -1;
 
-            const index = _findIndex(listData, (e) =>
-              _isEqual(defaultValue, _get(e, valueField))
-            );
-            if (
-              listData?.length > 0 &&
-              index > -1 &&
-              index <= listData?.length - 1
-            ) {
-              try {
-                refList.current.scrollToIndex({
-                  index: index,
-                  animated: false,
-                });
-              } catch (error) {
-                console.warn(`scrollToIndex error: ${error}`);
-              }
-            }
+      const defaultValue =
+        typeof value === 'object' ? _get(value, valueField) : value;
+      const index = _findIndex(listData, (e) =>
+        _isEqual(defaultValue, _get(e, valueField))
+      );
+      return index >= 0 && index < listData.length ? index : -1;
+    }, [autoScroll, data?.length, listData, value, valueField]);
+
+    const onScrollToIndexFailed = useCallback(
+      ({ index }: { index: number }) => {
+        // FlatList couldn't fulfil initialScrollIndex because the row hadn't
+        // been laid out yet. Retry on the next tick — by then the estimated
+        // offset is populated and scrollToIndex succeeds.
+        if (!refList.current || index < 0) return;
+        requestAnimationFrame(() => {
+          try {
+            refList.current?.scrollToIndex({ index, animated: false });
+          } catch {
+            // Swallow: the list may have shrunk again between the failure
+            // callback and this retry. The correct index will be picked up
+            // on the next open.
           }
-        }
-      }, [autoScroll, data.length, listData, value, valueField]),
-      200
+        });
+      },
+      []
     );
 
     const showOrClose = useCallback(() => {
@@ -604,8 +605,10 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               {...flatListProps}
               keyboardShouldPersistTaps="handled"
               ref={refList}
-              onContentSizeChange={scrollIndex}
-              onScrollToIndexFailed={scrollIndex}
+              initialScrollIndex={
+                autoScrollTarget >= 0 ? autoScrollTarget : undefined
+              }
+              onScrollToIndexFailed={onScrollToIndexFailed}
               data={listData}
               inverted={isTopPosition ? inverted : false}
               renderItem={_renderItem}
@@ -631,11 +634,12 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       [
         _renderItem,
         accessibilityLabel,
+        autoScrollTarget,
         flatListProps,
         listData,
         inverted,
+        onScrollToIndexFailed,
         renderSearch,
-        scrollIndex,
         showsVerticalScrollIndicator,
         testID,
         valueField,
