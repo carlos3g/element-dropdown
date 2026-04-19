@@ -48,6 +48,12 @@ or
 yarn add @carlos3g/element-dropdown
 ```
 
+## Recipes
+
+Common questions (searching with a custom field, disabling individual
+items, nesting inside a Modal, empty-state rendering, etc.) are
+collected in [`docs/recipes.md`](docs/recipes.md).
+
 ### Demo
 
 [<img src="https://github.com/hoaphantn7604/file-upload/blob/master/document/dropdown/react-native-element-dropdown-thumbnal.jpg">](https://youtu.be/FhTDR_Ad_14)
