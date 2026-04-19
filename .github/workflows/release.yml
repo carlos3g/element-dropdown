@@ -13,14 +13,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Node 24 ships with npm 11, which is required for Trusted Publishing
+      # (npm >= 11.5.1). Node 22.x currently ships with npm 10, and trying to
+      # self-upgrade npm 10 → npm latest fails on hosted runners with a
+      # MODULE_NOT_FOUND on 'promise-retry' mid-install.
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
-
-      - name: Upgrade npm for Trusted Publishing
-        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: |
