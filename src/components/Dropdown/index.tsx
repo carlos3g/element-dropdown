@@ -501,6 +501,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
           >
             <View
               style={StyleSheet.flatten([
+                styles.item,
                 itemContainerStyle,
                 selected && {
                   backgroundColor: activeColor,
@@ -510,17 +511,15 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               {renderItem ? (
                 renderItem(item, selected)
               ) : (
-                <View style={styles.item}>
-                  <Text
-                    style={StyleSheet.flatten([
-                      styles.textItem,
-                      itemTextStyle,
-                      font(),
-                    ])}
-                  >
-                    {_get(item, labelField)}
-                  </Text>
-                </View>
+                <Text
+                  style={StyleSheet.flatten([
+                    styles.textItem,
+                    itemTextStyle,
+                    font(),
+                  ])}
+                >
+                  {_get(item, labelField)}
+                </Text>
               )}
             </View>
           </TouchableHighlight>
