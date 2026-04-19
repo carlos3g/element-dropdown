@@ -4,7 +4,11 @@ import SelectCountry from './components/SelectCountry';
 
 export { Dropdown, MultiSelect, SelectCountry };
 
-export type { DropdownProps, IDropdownRef } from './components/Dropdown/model';
+export type {
+  DropdownProps,
+  IDropdownRef,
+  Section,
+} from './components/Dropdown/model';
 export type {
   MultiSelectProps,
   IMultiSelectRef,

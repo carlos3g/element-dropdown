@@ -21,6 +21,7 @@ import {
   Keyboard,
   KeyboardEvent,
   Modal,
+  SectionList,
   StatusBar,
   StyleSheet,
   Text,
@@ -32,13 +33,20 @@ import {
 import { useDetectDevice } from '../../toolkits';
 import { useDeviceOrientation } from '../../useDeviceOrientation';
 import CInput from '../TextInput';
-import { DropdownProps, IDropdownRef } from './model';
+import { DropdownProps, IDropdownRef, Section } from './model';
 import { styles } from './styles';
 
 const { isTablet } = useDetectDevice;
 const ic_down = require('../../assets/down.png');
 
 const statusBarHeight: number = StatusBar.currentHeight || 0;
+
+// Stable empty array used when neither `data` nor `sections` is
+// provided. Inlining `= []` in destructure creates a fresh
+// reference on every render, which cascades into useMemo
+// recomputation and infinite useEffect loops through getValue /
+// excludeData.
+const EMPTY_DATA: any[] = [];
 
 const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
   (props, currentRef) => {
@@ -57,7 +65,11 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       inputSearchStyle,
       iconStyle,
       selectedTextProps = {},
-      data = [],
+      data: dataProp,
+      sections,
+      renderSectionHeader,
+      sectionHeaderStyle,
+      sectionHeaderTextStyle,
       labelField,
       valueField,
       searchField,
@@ -109,11 +121,29 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       isInsideModal = false,
     } = props;
 
+    // When `sections` is provided it takes precedence over `data` —
+    // we flatten it to keep the rest of the component (currentValue
+    // lookup, autoScroll, excludeData, etc.) working unchanged over
+    // a plain array. The sectioned view is derived only at render
+    // time via `listSections`.
+    const usingSections = sections !== undefined && sections !== null;
+    const data = useMemo(
+      () =>
+        usingSections
+          ? sections!.flatMap((s) => s.data)
+          : (dataProp ?? EMPTY_DATA),
+      [usingSections, sections, dataProp]
+    );
+
     const ref = useRef<View>(null);
     const refList = useRef<FlatList>(null);
+    const refSectionList = useRef<SectionList>(null);
     const [visible, setVisible] = useState<boolean>(false);
     const [currentValue, setCurrentValue] = useState<any>(null);
     const [listData, setListData] = useState<any[]>(data);
+    const [listSections, setListSections] = useState<Section<any>[]>(
+      sections ?? []
+    );
     const [position, setPosition] = useState<any>();
     const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
     const [searchText, setSearchText] = useState('');
@@ -165,17 +195,33 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       [excludeItems, valueField, hideSelectedFromList, currentValue]
     );
 
+    // Apply excludeItems / hideSelectedFromList to each section,
+    // drop sections that end up empty (keeps the list from rendering
+    // a lone "Empty" header when every row is filtered out).
+    const excludeSections = useCallback(
+      (input: Section<any>[]) => {
+        return input
+          .map((s) => ({ ...s, data: excludeData(s.data) }))
+          .filter((s) => s.data.length > 0);
+      },
+      [excludeData]
+    );
+
     useEffect(() => {
-      if (data && searchText.length === 0) {
-        const filterData = excludeData(data);
-        setListData([...filterData]);
+      if (searchText.length === 0) {
+        if (usingSections) {
+          setListSections(excludeSections(sections ?? []));
+        } else if (data) {
+          const filterData = excludeData(data);
+          setListData([...filterData]);
+        }
       }
 
       if (searchText) {
         onSearch(searchText);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data, searchText]);
+    }, [data, sections, searchText]);
 
     const eventOpen = () => {
       if (!disable) {
@@ -361,7 +407,9 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         _measure();
         setVisible(visibleStatus);
 
-        if (data) {
+        if (usingSections) {
+          setListSections(excludeSections(sections ?? []));
+        } else if (data) {
           const filterData = excludeData(data);
           setListData(filterData);
         }
@@ -387,6 +435,9 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       visible,
       _measure,
       data,
+      sections,
+      usingSections,
+      excludeSections,
       searchText,
       onFocus,
       onBlur,
@@ -421,29 +472,49 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
             return searchQuery?.(text, labelText);
           };
 
-          const dataSearch = data.filter(
-            searchQuery ? propSearchFunction : defaultFilterFunction
-          );
+          const predicate = searchQuery
+            ? propSearchFunction
+            : defaultFilterFunction;
 
-          if (excludeSearchItems.length > 0 || excludeItems.length > 0) {
-            const excludeSearchData = _differenceWith(
-              dataSearch,
-              excludeSearchItems,
-              (obj1, obj2) => _get(obj1, valueField) === _get(obj2, valueField)
-            );
+          const applyExcludes = (items: any[]) => {
+            if (excludeSearchItems.length > 0 || excludeItems.length > 0) {
+              const excluded =
+                _differenceWith(
+                  items,
+                  excludeSearchItems,
+                  (obj1, obj2) =>
+                    _get(obj1, valueField) === _get(obj2, valueField)
+                ) || [];
+              return excludeData(excluded);
+            }
+            return items;
+          };
 
-            const filterData = excludeData(excludeSearchData);
-            setListData(filterData);
+          if (usingSections) {
+            const filtered = (sections ?? [])
+              .map((s) => ({
+                ...s,
+                data: applyExcludes(s.data.filter(predicate)),
+              }))
+              .filter((s) => s.data.length > 0);
+            setListSections(filtered);
           } else {
-            setListData(dataSearch);
+            const dataSearch = data.filter(predicate);
+            setListData(applyExcludes(dataSearch));
           }
         } else {
-          const filterData = excludeData(data);
-          setListData(filterData);
+          if (usingSections) {
+            setListSections(excludeSections(sections ?? []));
+          } else {
+            const filterData = excludeData(data);
+            setListData(filterData);
+          }
         }
       },
       [
         data,
+        sections,
+        usingSections,
         searchQuery,
         excludeSearchItems,
         excludeItems,
@@ -451,6 +522,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         labelField,
         valueField,
         excludeData,
+        excludeSections,
       ]
     );
 
@@ -661,11 +733,63 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       searchText,
     ]);
 
+    const _renderSectionHeader = useCallback(
+      ({ section }: { section: any }) => {
+        const s = section as Section<any>;
+        if (renderSectionHeader) {
+          return renderSectionHeader(s);
+        }
+        return (
+          <View style={[styles.sectionHeader, sectionHeaderStyle]}>
+            <Text
+              allowFontScaling={allowFontScaling}
+              style={[styles.sectionHeaderText, sectionHeaderTextStyle, font()]}
+            >
+              {s.title}
+            </Text>
+          </View>
+        );
+      },
+      [
+        renderSectionHeader,
+        sectionHeaderStyle,
+        sectionHeaderTextStyle,
+        allowFontScaling,
+        font,
+      ]
+    );
+
     const _renderList = useCallback(
       (isTopPosition: boolean) => {
         const isInverted = !inverted ? false : isTopPosition;
 
         const _renderListHelper = () => {
+          if (usingSections) {
+            return (
+              <SectionList
+                testID={testID + ' sectionlist'}
+                accessibilityLabel={accessibilityLabel + ' sectionlist'}
+                keyboardShouldPersistTaps="handled"
+                ref={refSectionList}
+                sections={listSections}
+                // `inverted` on SectionList would flip section-header
+                // order too, which is confusing — keep the natural
+                // reading order even when opening upward.
+                renderItem={({ item }) =>
+                  _renderItem({ item, index: 0 }) as any
+                }
+                renderSectionHeader={_renderSectionHeader}
+                keyExtractor={(item, index) => {
+                  const key = _get(item, valueField);
+                  return key != null ? String(key) : index.toString();
+                }}
+                stickySectionHeadersEnabled
+                showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+                onEndReached={onEndReached}
+                onEndReachedThreshold={onEndReachedThreshold}
+              />
+            );
+          }
           return (
             <FlatList
               testID={testID + ' flatlist'}
@@ -702,11 +826,13 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       },
       [
         _renderItem,
+        _renderSectionHeader,
         accessibilityLabel,
         autoScrollTarget,
         eventClose,
         flatListProps,
         listData,
+        listSections,
         inverted,
         onEndReached,
         onEndReachedThreshold,
@@ -715,6 +841,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         renderSearch,
         showsVerticalScrollIndicator,
         testID,
+        usingSections,
         valueField,
       ]
     );

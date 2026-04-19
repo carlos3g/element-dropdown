@@ -416,3 +416,88 @@ describe('MultiSelect — disabledField', () => {
     expect(onChange).toHaveBeenCalledWith(['cherry']);
   });
 });
+
+describe('MultiSelect — sections', () => {
+  const sectioned = [
+    {
+      title: 'Berries',
+      data: [
+        { label: 'Strawberry', value: 'str' },
+        { label: 'Blueberry', value: 'blu' },
+      ],
+    },
+    {
+      title: 'Citrus',
+      data: [
+        { label: 'Lemon', value: 'lem' },
+        { label: 'Orange', value: 'ora' },
+      ],
+    },
+  ];
+
+  const setupSections = (
+    props: Partial<React.ComponentProps<typeof MultiSelect>> = {}
+  ) =>
+    render(
+      <MultiSelect
+        testID="multiselect"
+        sections={sectioned}
+        labelField="label"
+        valueField="value"
+        placeholder="Pick fruits"
+        value={[]}
+        onChange={jest.fn()}
+        {...props}
+      />
+    );
+
+  it('renders section headers alongside items when opened', () => {
+    setupSections();
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    expect(screen.getByText('Berries')).toBeTruthy();
+    expect(screen.getByText('Citrus')).toBeTruthy();
+    expect(screen.getByText('Strawberry')).toBeTruthy();
+    expect(screen.getByText('Lemon')).toBeTruthy();
+  });
+
+  it('toggles items from sections', () => {
+    const onChange = jest.fn();
+    setupSections({ onChange });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    fireEvent.press(screen.getByText('Strawberry'));
+
+    expect(onChange).toHaveBeenCalledWith(['str']);
+  });
+
+  it('filters per-section during search and drops empty sections', () => {
+    setupSections({ search: true });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    const searchInput = screen.getByTestId('multiselect input');
+    fireEvent(searchInput, 'onChangeText', 'orange');
+
+    expect(screen.getByText('Orange')).toBeTruthy();
+    expect(screen.queryByText('Lemon')).toBeNull();
+    expect(screen.queryByText('Berries')).toBeNull();
+    expect(screen.getByText('Citrus')).toBeTruthy();
+  });
+
+  it('honors a custom renderSectionHeader', () => {
+    const renderSectionHeader = jest.fn(
+      (section: { title: string }) =>
+        (
+          <Text testID={`sh-${section.title}`}>{`• ${section.title}`}</Text>
+        ) as any
+    );
+    setupSections({ renderSectionHeader });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    expect(screen.getByTestId('sh-Berries')).toBeTruthy();
+    expect(screen.getByText('• Citrus')).toBeTruthy();
+  });
+});

@@ -44,6 +44,7 @@ const SelectCountryComponent = React.forwardRef<
   };
 
   const selectItem: any = useMemo(() => {
+    if (!data) return undefined;
     const index = data.findIndex((e: any) => e[valueField] === value);
     return data[index];
   }, [data, valueField, value]);

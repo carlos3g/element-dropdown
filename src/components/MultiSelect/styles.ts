@@ -99,4 +99,19 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sectionHeader: {
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 17,
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E5E5E5',
+  },
+  sectionHeaderText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+  },
 });

@@ -10,6 +10,8 @@ import type {
   ViewStyle,
 } from 'react-native';
 import { TextProps } from 'react-native';
+import type { Section } from '../Dropdown/model';
+export type { Section } from '../Dropdown/model';
 
 /**
  * Imperative handle exposed by the MultiSelect component.
@@ -77,8 +79,18 @@ export interface MultiSelectProps<T> {
   // Required: data and binding
   // ──────────────────────────────────────────────────────────────────
 
-  /** Array of items to render in the list. */
-  data: T[];
+  /**
+   * Array of items to render in the list. Pass `sections` instead
+   * to group items under section headers.
+   */
+  data?: T[];
+  /**
+   * Groups of items to render under section headers. Pass this
+   * *instead of* `data` — when present, `data` is ignored.
+   *
+   * @see https://carlos3g.github.io/element-dropdown/docs/guides/sectioned-lists
+   */
+  sections?: Section<T>[];
   /** Field on each item used as the visible label. */
   labelField: keyof T;
   /** Field on each item that uniquely identifies it. */
@@ -184,6 +196,17 @@ export interface MultiSelectProps<T> {
   selectedToTop?: boolean;
   /** Fully custom row renderer. */
   renderItem?: (item: T, selected?: boolean) => React.ReactElement | null;
+
+  // ──────────────────────────────────────────────────────────────────
+  // Sections (used only when `sections` is provided)
+  // ──────────────────────────────────────────────────────────────────
+
+  /** Style for the default section-header container `<View>`. */
+  sectionHeaderStyle?: StyleProp<ViewStyle>;
+  /** Style for the default section-header `<Text>`. */
+  sectionHeaderTextStyle?: StyleProp<TextStyle>;
+  /** Fully custom section-header renderer. */
+  renderSectionHeader?: (section: Section<T>) => React.ReactElement | null;
 
   // ──────────────────────────────────────────────────────────────────
   // Search (mirrors Dropdown)

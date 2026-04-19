@@ -12,6 +12,28 @@ import type {
 } from 'react-native';
 
 /**
+ * A group of items used by the `sections` prop on Dropdown and
+ * MultiSelect. Mirrors React Native's own `SectionListData` shape
+ * so a `SectionList`-backed render can consume these directly.
+ *
+ * @typeParam T - Shape of each item in `data`.
+ *
+ * @example
+ * ```ts
+ * const sections: Section<Fruit>[] = [
+ *   { title: 'Berries', data: [{ label: 'Strawberry', value: 'str' }] },
+ *   { title: 'Citrus',  data: [{ label: 'Lemon',      value: 'lem' }] },
+ * ];
+ * ```
+ */
+export interface Section<T> {
+  /** Visible heading rendered above this group's rows. */
+  title: string;
+  /** Items belonging to this section. */
+  data: T[];
+}
+
+/**
  * Imperative handle exposed by the Dropdown component.
  *
  * @example
@@ -75,8 +97,34 @@ export interface DropdownProps<T> {
   // Required: data and binding
   // ──────────────────────────────────────────────────────────────────
 
-  /** Array of items to render in the list. */
-  data: T[];
+  /**
+   * Array of items to render in the list. Pass `sections` instead
+   * if you want to group items under section headers.
+   *
+   * When `sections` is provided, `data` is ignored (pass `[]` or
+   * omit it).
+   */
+  data?: T[];
+  /**
+   * Groups of items to render under section headers. Pass this
+   * *instead of* `data` — when present, `data` is ignored.
+   *
+   * @example
+   * ```tsx
+   * <Dropdown
+   *   sections={[
+   *     { title: 'Berries', data: [{ label: 'Strawberry', value: 'str' }] },
+   *     { title: 'Citrus',  data: [{ label: 'Lemon',      value: 'lem' }] },
+   *   ]}
+   *   labelField="label"
+   *   valueField="value"
+   *   onChange={setFruit}
+   * />
+   * ```
+   *
+   * @see https://carlos3g.github.io/element-dropdown/docs/guides/sectioned-lists
+   */
+  sections?: Section<T>[];
   /** Field on each item used as the visible label. */
   labelField: keyof T;
   /** Field on each item that uniquely identifies it. */
@@ -178,6 +226,23 @@ export interface DropdownProps<T> {
    * @param selected - Whether `item` matches the current `value`.
    */
   renderItem?: (item: T, selected?: boolean) => React.ReactElement | null;
+
+  // ──────────────────────────────────────────────────────────────────
+  // Sections (used only when `sections` is provided)
+  // ──────────────────────────────────────────────────────────────────
+
+  /** Style for the default section-header container `<View>`. */
+  sectionHeaderStyle?: StyleProp<ViewStyle>;
+  /** Style for the default section-header `<Text>`. */
+  sectionHeaderTextStyle?: StyleProp<TextStyle>;
+  /**
+   * Fully custom section-header renderer. Overrides the default
+   * title-in-a-styled-View layout.
+   *
+   * @param section - The section being rendered, including its
+   *   `title` and `data`.
+   */
+  renderSectionHeader?: (section: Section<T>) => React.ReactElement | null;
 
   // ──────────────────────────────────────────────────────────────────
   // Search

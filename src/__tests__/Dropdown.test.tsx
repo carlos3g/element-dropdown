@@ -458,3 +458,91 @@ describe('Dropdown — style threading', () => {
     expect(trigger.props.hitSlop).toEqual(hitSlop);
   });
 });
+
+describe('Dropdown — sections', () => {
+  const sectioned = [
+    {
+      title: 'Berries',
+      data: [
+        { label: 'Strawberry', value: 'str' },
+        { label: 'Blueberry', value: 'blu' },
+      ],
+    },
+    {
+      title: 'Citrus',
+      data: [
+        { label: 'Lemon', value: 'lem' },
+        { label: 'Orange', value: 'ora' },
+      ],
+    },
+  ];
+
+  const setupSections = (
+    props: Partial<React.ComponentProps<typeof Dropdown>> = {}
+  ) =>
+    render(
+      <Dropdown
+        testID="dropdown"
+        sections={sectioned}
+        labelField="label"
+        valueField="value"
+        placeholder="Pick a fruit"
+        onChange={jest.fn()}
+        {...props}
+      />
+    );
+
+  it('renders section headers alongside the items when opened', () => {
+    setupSections();
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    expect(screen.getByText('Berries')).toBeTruthy();
+    expect(screen.getByText('Citrus')).toBeTruthy();
+    expect(screen.getByText('Strawberry')).toBeTruthy();
+    expect(screen.getByText('Orange')).toBeTruthy();
+  });
+
+  it('calls onChange with the picked item from a section', () => {
+    const onChange = jest.fn();
+    setupSections({ onChange });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    fireEvent.press(screen.getByText('Lemon'));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ value: 'lem' })
+    );
+  });
+
+  it('filters per-section during search and drops sections that go empty', () => {
+    setupSections({ search: true });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    const searchInput = screen.getByTestId('dropdown input');
+    fireEvent(searchInput, 'onChangeText', 'lemon');
+
+    expect(screen.getByText('Lemon')).toBeTruthy();
+    expect(screen.queryByText('Strawberry')).toBeNull();
+    expect(screen.queryByText('Berries')).toBeNull();
+    expect(screen.getByText('Citrus')).toBeTruthy();
+  });
+
+  it('invokes a custom renderSectionHeader', () => {
+    const renderSectionHeader = jest.fn(
+      (section: { title: string }) =>
+        (
+          <Text testID={`sh-${section.title}`}>{`>> ${section.title}`}</Text>
+        ) as any
+    );
+    setupSections({ renderSectionHeader });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    expect(screen.getByTestId('sh-Berries')).toBeTruthy();
+    expect(screen.getByText('>> Citrus')).toBeTruthy();
+    expect(renderSectionHeader).toHaveBeenCalledTimes(sectioned.length);
+  });
+});

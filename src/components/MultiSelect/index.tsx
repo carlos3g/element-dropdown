@@ -18,6 +18,7 @@ import {
   Keyboard,
   KeyboardEvent,
   Modal,
+  SectionList,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -29,12 +30,16 @@ import {
 import { useDetectDevice } from '../../toolkits';
 import { useDeviceOrientation } from '../../useDeviceOrientation';
 import CInput from '../TextInput';
-import { IMultiSelectRef, MultiSelectProps } from './model';
+import { IMultiSelectRef, MultiSelectProps, Section } from './model';
 import { styles } from './styles';
 
 const { isTablet } = useDetectDevice;
 const ic_down = require('../../assets/down.png');
 const statusBarHeight: number = StatusBar.currentHeight || 0;
+
+// Stable empty array used when neither `data` nor `sections` is
+// provided. See Dropdown/index.tsx for the same guard + reason.
+const EMPTY_DATA: any[] = [];
 
 const MultiSelectComponent = React.forwardRef<
   IMultiSelectRef,
@@ -45,7 +50,11 @@ const MultiSelectComponent = React.forwardRef<
     testID,
     itemTestIDField,
     onChange,
-    data = [],
+    data: dataProp,
+    sections,
+    renderSectionHeader,
+    sectionHeaderStyle,
+    sectionHeaderTextStyle,
     value,
     style = {},
     labelField,
@@ -113,10 +122,25 @@ const MultiSelectComponent = React.forwardRef<
     isInsideModal = false,
   } = props;
 
+  // `sections` takes precedence over `data`; flatten for shared
+  // logic (currentValue lookup, selection toggles, etc.) and keep
+  // the sectioned view only for the render path.
+  const usingSections = sections !== undefined && sections !== null;
+  const data = useMemo(
+    () =>
+      usingSections
+        ? sections!.flatMap((s) => s.data)
+        : (dataProp ?? EMPTY_DATA),
+    [usingSections, sections, dataProp]
+  );
+
   const ref = useRef<View>(null);
   const [visible, setVisible] = useState<boolean>(false);
   const [currentValue, setCurrentValue] = useState<any[]>([]);
   const [listData, setListData] = useState<any[]>(data);
+  const [listSections, setListSections] = useState<Section<any>[]>(
+    sections ?? []
+  );
   const [, setKey] = useState<number>(Math.random());
   const [position, setPosition] = useState<any>();
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
@@ -184,17 +208,33 @@ const MultiSelectComponent = React.forwardRef<
     ]
   );
 
+  // Apply the same filter / reorder pass to each section, then drop
+  // any section that ends up empty so the list doesn't render a
+  // stray header with no rows beneath it.
+  const excludeSections = useCallback(
+    (input: Section<any>[]) => {
+      return input
+        .map((s) => ({ ...s, data: excludeData(s.data) }))
+        .filter((s) => s.data.length > 0);
+    },
+    [excludeData]
+  );
+
   useEffect(() => {
-    if (data && searchText.length === 0) {
-      const filterData = excludeData(data);
-      setListData([...filterData]);
+    if (searchText.length === 0) {
+      if (usingSections) {
+        setListSections(excludeSections(sections ?? []));
+      } else if (data) {
+        const filterData = excludeData(data);
+        setListData([...filterData]);
+      }
     }
 
     if (searchText) {
       onSearch(searchText);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, searchText]);
+  }, [data, sections, searchText]);
 
   const eventOpen = () => {
     if (!disable) {
@@ -329,7 +369,9 @@ const MultiSelectComponent = React.forwardRef<
       _measure();
       setVisible(visibleStatus);
 
-      if (data) {
+      if (usingSections) {
+        setListSections(excludeSections(sections ?? []));
+      } else if (data) {
         const filterData = excludeData(data);
         setListData(filterData);
       }
@@ -355,6 +397,9 @@ const MultiSelectComponent = React.forwardRef<
     visible,
     _measure,
     data,
+    sections,
+    usingSections,
+    excludeSections,
     searchText,
     onFocus,
     onBlur,
@@ -390,29 +435,49 @@ const MultiSelectComponent = React.forwardRef<
           return searchQuery?.(text, labelText);
         };
 
-        const dataSearch = data.filter(
-          searchQuery ? propSearchFunction : defaultFilterFunction
-        );
+        const predicate = searchQuery
+          ? propSearchFunction
+          : defaultFilterFunction;
 
-        if (excludeSearchItems.length > 0 || excludeItems.length > 0) {
-          const excludeSearchData = _differenceWith(
-            dataSearch,
-            excludeSearchItems,
-            (obj1, obj2) => _get(obj1, valueField) === _get(obj2, valueField)
-          );
+        const applyExcludes = (items: any[]) => {
+          if (excludeSearchItems.length > 0 || excludeItems.length > 0) {
+            const excluded =
+              _differenceWith(
+                items,
+                excludeSearchItems,
+                (obj1, obj2) =>
+                  _get(obj1, valueField) === _get(obj2, valueField)
+              ) || [];
+            return excludeData(excluded);
+          }
+          return items;
+        };
 
-          const filterData = excludeData(excludeSearchData);
-          setListData(filterData);
+        if (usingSections) {
+          const filtered = (sections ?? [])
+            .map((s) => ({
+              ...s,
+              data: applyExcludes(s.data.filter(predicate)),
+            }))
+            .filter((s) => s.data.length > 0);
+          setListSections(filtered);
         } else {
-          setListData(dataSearch);
+          const dataSearch = data.filter(predicate);
+          setListData(applyExcludes(dataSearch));
         }
       } else {
-        const filterData = excludeData(data);
-        setListData(filterData);
+        if (usingSections) {
+          setListSections(excludeSections(sections ?? []));
+        } else {
+          const filterData = excludeData(data);
+          setListData(filterData);
+        }
       }
     },
     [
       data,
+      sections,
+      usingSections,
       searchQuery,
       excludeSearchItems,
       excludeItems,
@@ -420,6 +485,7 @@ const MultiSelectComponent = React.forwardRef<
       labelField,
       valueField,
       excludeData,
+      excludeSections,
     ]
   );
 
@@ -661,11 +727,57 @@ const MultiSelectComponent = React.forwardRef<
     testID,
   ]);
 
+  const _renderSectionHeader = useCallback(
+    ({ section }: { section: any }) => {
+      const s = section as Section<any>;
+      if (renderSectionHeader) {
+        return renderSectionHeader(s);
+      }
+      return (
+        <View style={[styles.sectionHeader, sectionHeaderStyle]}>
+          <Text
+            allowFontScaling={allowFontScaling}
+            style={[styles.sectionHeaderText, sectionHeaderTextStyle, font()]}
+          >
+            {s.title}
+          </Text>
+        </View>
+      );
+    },
+    [
+      renderSectionHeader,
+      sectionHeaderStyle,
+      sectionHeaderTextStyle,
+      allowFontScaling,
+      font,
+    ]
+  );
+
   const _renderList = useCallback(
     (isTopPosition: boolean) => {
       const isInverted = !inverted ? false : isTopPosition;
 
       const _renderListHelper = () => {
+        if (usingSections) {
+          return (
+            <SectionList
+              testID={testID + ' sectionlist'}
+              accessibilityLabel={accessibilityLabel + ' sectionlist'}
+              keyboardShouldPersistTaps="handled"
+              sections={listSections}
+              renderItem={({ item }) => _renderItem({ item, index: 0 }) as any}
+              renderSectionHeader={_renderSectionHeader}
+              keyExtractor={(item, index) => {
+                const key = _get(item, valueField);
+                return key != null ? String(key) : index.toString();
+              }}
+              stickySectionHeadersEnabled
+              showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+              onEndReached={onEndReached}
+              onEndReachedThreshold={onEndReachedThreshold}
+            />
+          );
+        }
         return (
           <FlatList
             testID={testID + ' flatlist'}
@@ -697,10 +809,12 @@ const MultiSelectComponent = React.forwardRef<
     },
     [
       _renderItem,
+      _renderSectionHeader,
       accessibilityLabel,
       eventClose,
       flatListProps,
       listData,
+      listSections,
       inverted,
       onEndReached,
       onEndReachedThreshold,
@@ -708,6 +822,7 @@ const MultiSelectComponent = React.forwardRef<
       renderSearch,
       showsVerticalScrollIndicator,
       testID,
+      usingSections,
       valueField,
     ]
   );
