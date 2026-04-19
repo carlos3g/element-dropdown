@@ -95,7 +95,7 @@
     "prettier": "^3",
     "react": "^18.3.1",
     "react-native": "^0.76.9",
-    "react-native-builder-bob": "^0.32.0",
+    "react-native-builder-bob": "^0.41.0",
     "react-test-renderer": "^18.3.1",
     "reassure": "^1.4.1",
     "release-it": "^20",
