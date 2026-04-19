@@ -90,6 +90,33 @@ describe('DropdownSearchInput', () => {
     );
   });
 
+  it('derives an accessibilityLabel from the dropdown-level prop', () => {
+    render(
+      <DropdownSearchInput
+        {...baseProps}
+        testID="dd"
+        accessibilityLabel="Fruit picker"
+      />
+    );
+    expect(screen.getByTestId('dd input').props.accessibilityLabel).toBe(
+      'Fruit picker input'
+    );
+  });
+
+  it('lets searchInputProps.accessibilityLabel win over the derived one', () => {
+    render(
+      <DropdownSearchInput
+        {...baseProps}
+        testID="dd"
+        accessibilityLabel="Fruit picker"
+        searchInputProps={{ accessibilityLabel: 'Search fruits' }}
+      />
+    );
+    expect(screen.getByTestId('dd input').props.accessibilityLabel).toBe(
+      'Search fruits'
+    );
+  });
+
   it('forwards placeholder and placeholder color', () => {
     render(
       <DropdownSearchInput

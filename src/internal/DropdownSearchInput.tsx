@@ -80,14 +80,21 @@ export function DropdownSearchInput({
     return renderInputSearch(onChangeText);
   }
 
+  // Derive a fallback accessibilityLabel from the dropdown-level prop
+  // so screen readers have *something* to announce, but let the caller
+  // win by putting `searchInputProps` after the derived value in the
+  // spread. Consumers who care about the exact label can pass
+  // `searchInputProps={{ accessibilityLabel: 'Search fruits' }}`.
+  const derivedLabel = accessibilityLabel
+    ? accessibilityLabel + ' input'
+    : undefined;
+
   return (
     <CInput
       autoCorrect={false}
+      accessibilityLabel={derivedLabel}
       {...searchInputProps}
       testID={testID ? testID + ' input' : undefined}
-      accessibilityLabel={
-        accessibilityLabel ? accessibilityLabel + ' input' : undefined
-      }
       allowFontScaling={allowFontScaling}
       style={wrapperStyle}
       inputStyle={textInputStyle}
