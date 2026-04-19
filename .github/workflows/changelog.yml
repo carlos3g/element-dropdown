@@ -1,0 +1,90 @@
+name: Changelog — append on release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: changelog-${{ github.event.release.tag_name || 'manual' }}
+  cancel-in-progress: false
+
+jobs:
+  append:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event.release.prerelease == false
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Regenerate CHANGELOG.md from gh release list
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Pull every published, non-prerelease release in chronological-desc
+          # order. We rebuild the generated section from scratch each run so
+          # this workflow is idempotent and recovers from any drift.
+          tmp=$(mktemp)
+          gh release list \
+            --repo "${{ github.repository }}" \
+            --limit 200 \
+            --exclude-drafts \
+            --exclude-pre-releases \
+            --json tagName,publishedAt,name \
+            --jq 'sort_by(.publishedAt) | reverse | .[] | "\(.tagName)\t\(.publishedAt[0:10])\t\(.name)"' \
+            > "$tmp"
+
+          {
+            echo ""
+            while IFS=$'\t' read -r tag date name; do
+              body=$(gh release view "$tag" --repo "${{ github.repository }}" --json body --jq '.body')
+              [ -z "$name" ] && name="$tag"
+              echo ""
+              echo "## [$tag](https://github.com/${{ github.repository }}/releases/tag/$tag) — $date"
+              echo ""
+              # Demote upstream H1/H2 to H3/H4 so the entry nests under the
+              # release heading and we don't get duplicate top-level titles.
+              printf '%s\n' "$body" | sed -E 's/^# /### /; s/^## /#### /'
+            done < "$tmp"
+          } > generated.md
+
+          # Splice the generated block between the well-known markers in
+          # CHANGELOG.md. The header (Keep a Changelog blurb) is preserved.
+          python3 - <<'PY'
+          import re, pathlib
+          p = pathlib.Path('CHANGELOG.md')
+          src = p.read_text()
+          gen = pathlib.Path('generated.md').read_text()
+          new = re.sub(
+              r'(<!-- generated:start -->)(.*?)(<!-- generated:end -->)',
+              lambda m: m.group(1) + '\n' + gen.rstrip() + '\n\n' + m.group(3),
+              src,
+              flags=re.S,
+          )
+          p.write_text(new)
+          PY
+
+          rm -f "$tmp" generated.md
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet CHANGELOG.md; then
+            echo "CHANGELOG.md is already up to date — nothing to commit."
+            exit 0
+          fi
+          git add CHANGELOG.md
+          git commit -m "docs: refresh CHANGELOG.md for ${{ github.event.release.tag_name || 'manual sync' }}"
+          git push origin master

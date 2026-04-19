@@ -63,7 +63,21 @@ export function FruitPicker() {
 }
 ```
 
-For the full API (Dropdown, MultiSelect, SelectCountry), migration guide, and 13 hands-on recipes, see **[the docs](https://carlos3g.github.io/element-dropdown/)**.
+For the full API (Dropdown, MultiSelect, SelectCountry), migration guide, and 18 hands-on recipes, see **[the docs](https://carlos3g.github.io/element-dropdown/)**.
+
+## Use with AI assistants
+
+This package is designed to work well with LLM-powered tools (Claude, Cursor, GitHub Copilot, ChatGPT, Aider, etc.):
+
+- **`llms.txt` / `llms-full.txt`** — the docs site exposes both files at the root, following the [llmstxt.org](https://llmstxt.org/) standard:
+  - [`/llms.txt`](https://carlos3g.github.io/element-dropdown/llms.txt) — short manifest with links to every page
+  - [`/llms-full.txt`](https://carlos3g.github.io/element-dropdown/llms-full.txt) — every doc page concatenated, optimized for a single fetch
+- **Rich JSDoc** on every prop in `DropdownProps`, `MultiSelectProps`, and `SelectCountryProps` — your IDE's IntelliSense (and any AI integrated with it) sees `@default`, `@example`, and links to the matching guide for each prop.
+- **Stable, drop-in API** — agents can safely refactor existing `react-native-element-dropdown` codebases just by changing the install name and import path.
+
+### Sample prompt
+
+> "I'm using `@carlos3g/element-dropdown`. Read its full documentation at <https://carlos3g.github.io/element-dropdown/llms-full.txt> and build me a `<UserPicker>` component that wraps `MultiSelect`, debounces search, paginates with `onEndReached`, and shows a sticky modal header with a counter."
 
 ## Demo
 
