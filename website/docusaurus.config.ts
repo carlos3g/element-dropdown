@@ -92,16 +92,18 @@ const config: Config = {
             'https://github.com/carlos3g/element-dropdown/tree/master/website/',
           showLastUpdateTime: true,
           showLastUpdateAuthor: false,
-          lastVersion: '2.13.0',
+          // Versioning is entirely driven by `website/versions.json` + the
+          // generated `versioned_docs/` / `versioned_sidebars/` trees.
+          // Defaults:
+          //   /docs/*         → latest entry in versions.json
+          //   /docs/<ver>/*   → any other versioned release
+          //   /docs/next/*    → current working copy from `docs/`
+          // The `docs-version.yml` workflow runs `docs:version X.Y.Z` on
+          // every GitHub Release, which keeps this file untouched.
           versions: {
             current: {
               label: 'Next 🚧',
-              path: 'next',
               banner: 'unreleased',
-            },
-            '2.13.0': {
-              label: '2.13.0',
-              path: '',
             },
           },
         },

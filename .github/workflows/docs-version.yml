@@ -1,0 +1,84 @@
+name: Docs — snapshot on release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number to snapshot (no leading v), e.g. 2.14.0'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: docs-version-${{ github.event.release.tag_name || github.event.inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event.release.prerelease == false
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve version
+        id: v
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            TAG="${{ github.event.release.tag_name }}"
+            VERSION="${TAG#v}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+        working-directory: .
+
+      - name: Bail if snapshot already exists
+        id: exists
+        run: |
+          if [ -d "versioned_docs/version-${{ steps.v.outputs.version }}" ]; then
+            echo "Snapshot for ${{ steps.v.outputs.version }} already exists. Nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.exists.outputs.skip == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install dependencies
+        if: steps.exists.outputs.skip == 'false'
+        run: npm ci
+
+      - name: Snapshot docs at ${{ steps.v.outputs.version }}
+        if: steps.exists.outputs.skip == 'false'
+        run: npm run docusaurus docs:version ${{ steps.v.outputs.version }}
+
+      - name: Commit and push snapshot
+        if: steps.exists.outputs.skip == 'false'
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add website/versions.json \
+                  website/versioned_docs/version-${{ steps.v.outputs.version }} \
+                  website/versioned_sidebars/version-${{ steps.v.outputs.version }}-sidebars.json
+          git commit -m "docs: snapshot ${{ steps.v.outputs.version }}"
+          git push origin master
