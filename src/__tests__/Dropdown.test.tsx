@@ -96,6 +96,54 @@ describe('Dropdown', () => {
     expect(root).toBeTruthy();
   });
 
+  it('skips onChange for items whose disabledField is truthy', () => {
+    const onChange = jest.fn();
+    const dataWithDisabled = [
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana', locked: true },
+      { label: 'Cherry', value: 'cherry' },
+    ];
+    render(
+      <Dropdown
+        testID="dropdown"
+        data={dataWithDisabled}
+        labelField="label"
+        valueField="value"
+        disabledField="locked"
+        onChange={onChange}
+      />
+    );
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    fireEvent.press(screen.getByText('Banana'));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('still selects items whose disabledField is falsy', () => {
+    const onChange = jest.fn();
+    const dataWithDisabled = [
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana', locked: true },
+      { label: 'Cherry', value: 'cherry' },
+    ];
+    render(
+      <Dropdown
+        testID="dropdown"
+        data={dataWithDisabled}
+        labelField="label"
+        valueField="value"
+        disabledField="locked"
+        onChange={onChange}
+      />
+    );
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    fireEvent.press(screen.getByText('Cherry'));
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ value: 'cherry' })
+    );
+  });
+
   it('exposes open() and close() through the imperative ref', () => {
     const ref = React.createRef<IDropdownRef>();
     render(

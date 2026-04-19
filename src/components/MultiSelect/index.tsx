@@ -51,6 +51,7 @@ const MultiSelectComponent = React.forwardRef<
     labelField,
     valueField,
     searchField,
+    disabledField,
     selectedStyle,
     selectedTextStyle,
     itemContainerStyle,
@@ -459,6 +460,7 @@ const MultiSelectComponent = React.forwardRef<
   const _renderItem = useCallback(
     ({ item, index }: { item: any; index: number }) => {
       const selected = checkSelected(item);
+      const itemDisabled = disabledField ? !!_get(item, disabledField) : false;
       _assign(item, { _index: index });
       return (
         <TouchableHighlight
@@ -469,8 +471,10 @@ const MultiSelectComponent = React.forwardRef<
             item,
             itemAccessibilityLabelField || labelField
           )}
+          accessibilityState={{ selected, disabled: itemDisabled }}
+          disabled={itemDisabled}
           underlayColor={activeColor}
-          onPress={() => onSelect(item)}
+          onPress={() => !itemDisabled && onSelect(item)}
         >
           <View
             style={StyleSheet.flatten([
@@ -480,6 +484,7 @@ const MultiSelectComponent = React.forwardRef<
                 backgroundColor: activeColor,
                 ...styles.wrapItem,
               },
+              itemDisabled && { opacity: 0.4 },
             ])}
           >
             {renderItem ? (
@@ -503,6 +508,7 @@ const MultiSelectComponent = React.forwardRef<
       accessibilityLabel,
       activeColor,
       checkSelected,
+      disabledField,
       font,
       itemAccessibilityLabelField,
       itemContainerStyle,
