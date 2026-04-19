@@ -323,6 +323,52 @@ describe('MultiSelect — chip row', () => {
     expect(screen.getAllByText('[Apple]').length).toBeGreaterThan(0);
     expect(screen.getAllByText('[Banana]').length).toBeGreaterThan(0);
   });
+
+  it('renders the default remove glyph when no renderChipRemoveIcon is passed', () => {
+    setup({ value: ['apple'] });
+
+    // The glyph is wrapped in an accessibility-hidden Text; queries
+    // ignore it by default, so opt in explicitly.
+    expect(screen.getByText('ⓧ', { includeHiddenElements: true })).toBeTruthy();
+  });
+
+  it('replaces the default remove glyph with renderChipRemoveIcon', () => {
+    const renderChipRemoveIcon = jest.fn((item: Item) => (
+      <Text>{`×${item.value}`}</Text>
+    ));
+    setup({ value: ['apple', 'banana'], renderChipRemoveIcon });
+
+    // Called once per chip with the corresponding item.
+    const calledWith = new Set(
+      renderChipRemoveIcon.mock.calls.map(([item]) => item.value)
+    );
+    expect(calledWith).toEqual(new Set(['apple', 'banana']));
+
+    // Default glyph is gone; custom output replaces it. Both live in
+    // the accessibility-hidden subtree, so opt into hidden queries.
+    expect(screen.queryByText('ⓧ', { includeHiddenElements: true })).toBeNull();
+    expect(
+      screen.getByText('×apple', { includeHiddenElements: true })
+    ).toBeTruthy();
+    expect(
+      screen.getByText('×banana', { includeHiddenElements: true })
+    ).toBeTruthy();
+  });
+
+  it('ignores renderChipRemoveIcon when renderSelectedItem is also provided', () => {
+    const renderChipRemoveIcon = jest.fn();
+    const renderSelectedItem = jest.fn((item: Item) => (
+      <Text>{`[${item.label}]`}</Text>
+    ));
+    setup({
+      value: ['apple'],
+      renderSelectedItem,
+      renderChipRemoveIcon,
+    });
+
+    expect(renderSelectedItem).toHaveBeenCalled();
+    expect(renderChipRemoveIcon).not.toHaveBeenCalled();
+  });
 });
 
 describe('MultiSelect — search', () => {

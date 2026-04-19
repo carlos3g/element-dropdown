@@ -102,6 +102,7 @@ time an item is toggled.
 |---|---|---|
 | `selectedStyle` | `ViewStyle` | Style for each chip container. |
 | `renderSelectedItem` | `(item: T, unSelect?: (item: T) => void) => ReactElement` | Fully custom chip renderer. |
+| `renderChipRemoveIcon` | `(item: T) => ReactElement` | Replace the built-in `ⓧ` glyph on the default chip without reimplementing the whole chip. Ignored when `renderSelectedItem` is passed. |
 
 ### Items
 

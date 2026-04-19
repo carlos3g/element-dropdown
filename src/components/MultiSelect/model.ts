@@ -136,6 +136,19 @@ export interface MultiSelectProps<T> {
     item: T,
     unSelect?: (item: T) => void
   ) => React.ReactElement | null;
+  /**
+   * Custom remove glyph for the default chip. Replaces the built-in
+   * `ⓧ` character without forcing the consumer to reimplement the
+   * entire chip via `renderSelectedItem`. Ignored when
+   * `renderSelectedItem` is provided.
+   *
+   * The rendered element is hidden from the accessibility tree —
+   * screen readers already announce the chip as a button that
+   * removes the item (see `chipRemoveAccessibilityHint`).
+   *
+   * @param item - The selected item the chip represents.
+   */
+  renderChipRemoveIcon?: (item: T) => React.ReactElement | null;
 
   // ──────────────────────────────────────────────────────────────────
   // Container, layout, mode
