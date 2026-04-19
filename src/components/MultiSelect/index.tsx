@@ -89,6 +89,7 @@ const MultiSelectComponent = React.forwardRef<
     renderLeftIcon,
     renderRightIcon,
     renderSelectedItem,
+    renderChipRemoveIcon,
     renderInputSearch,
     renderModalHeader,
     onFocus,
@@ -904,19 +905,28 @@ const MultiSelectComponent = React.forwardRef<
                 >
                   {itemLabel}
                 </Text>
-                <Text
-                  // Decorative × glyph; screen readers already announce
-                  // the chip as a button that removes the item, so the
-                  // glyph being read as "circled x" would just be noise.
-                  accessibilityElementsHidden
-                  importantForAccessibility="no-hide-descendants"
-                  style={StyleSheet.flatten([
-                    styles.selectedTextItem,
-                    selectedTextStyle,
-                  ])}
-                >
-                  ⓧ
-                </Text>
+                {renderChipRemoveIcon ? (
+                  <View
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                  >
+                    {renderChipRemoveIcon(e)}
+                  </View>
+                ) : (
+                  <Text
+                    // Decorative × glyph; screen readers already announce
+                    // the chip as a button that removes the item, so the
+                    // glyph being read as "circled x" would just be noise.
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                    style={StyleSheet.flatten([
+                      styles.selectedTextItem,
+                      selectedTextStyle,
+                    ])}
+                  >
+                    ⓧ
+                  </Text>
+                )}
               </View>
             </TouchableWithoutFeedback>
           );
