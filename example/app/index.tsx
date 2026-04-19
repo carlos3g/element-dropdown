@@ -1,5 +1,11 @@
 import { Link } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 type Demo = {
   href:
@@ -133,16 +139,15 @@ export default function Home() {
           {demos
             .filter((demo) => demo.section === section)
             .map((demo) => (
-              <Link
-                key={demo.href}
-                href={demo.href}
-                style={styles.card}
-                asChild
-              >
-                <View accessibilityRole="link">
+              <Link key={demo.href} href={demo.href} asChild>
+                <TouchableOpacity
+                  accessibilityRole="link"
+                  activeOpacity={0.7}
+                  style={styles.card}
+                >
                   <Text style={styles.title}>{demo.title}</Text>
                   <Text style={styles.description}>{demo.description}</Text>
-                </View>
+                </TouchableOpacity>
               </Link>
             ))}
         </View>
