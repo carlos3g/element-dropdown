@@ -134,7 +134,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
     const [searchText, setSearchText] = useState('');
 
     const refList = useRef<FlatList>(null);
-    const refSectionList = useRef<SectionList>(null);
 
     const {
       ref,
@@ -448,7 +447,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
     );
 
     const _renderDropdown = () => {
-      const isSelected = currentValue && _get(currentValue, valueField);
+      const hasSelection = currentValue != null;
       return (
         <TouchableWithoutFeedback
           testID={testID}
@@ -468,14 +467,12 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 allowFontScaling={allowFontScaling}
                 style={[
                   styles.textItem,
-                  isSelected !== null ? selectedTextStyle : placeholderStyle,
+                  hasSelection ? selectedTextStyle : placeholderStyle,
                   fontStyle,
                 ]}
                 {...selectedTextProps}
               >
-                {isSelected !== null
-                  ? _get(currentValue, labelField)
-                  : placeholder}
+                {hasSelection ? _get(currentValue, labelField) : placeholder}
               </Text>
               {renderRightIcon ? (
                 renderRightIcon(visible)
@@ -497,8 +494,16 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
 
     const _renderItem = useCallback(
       ({ item, index }: { item: any; index: number }) => {
-        const isSelected = currentValue && _get(currentValue, valueField);
-        const selected = _isEqual(_get(item, valueField), isSelected);
+        // `selected` must only be true when SOMETHING is selected AND
+        // the current item matches it. Previously
+        //   const isSelected = currentValue && _get(currentValue, valueField);
+        //   const selected = _isEqual(_get(item, valueField), isSelected);
+        // treated no-selection-at-all as `isSelected === null`, then
+        // marked any item whose valueField happened to equal null as
+        // selected — a subtle falsy-match bug.
+        const selected =
+          currentValue != null &&
+          _isEqual(_get(item, valueField), _get(currentValue, valueField));
         const itemDisabled = disabledField
           ? !!_get(item, disabledField)
           : false;
@@ -648,7 +653,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 testID={testID + ' sectionlist'}
                 accessibilityLabel={accessibilityLabel + ' sectionlist'}
                 keyboardShouldPersistTaps="handled"
-                ref={refSectionList}
                 sections={listSections}
                 // `inverted` on SectionList would flip section-header
                 // order too, which is confusing — keep the natural
