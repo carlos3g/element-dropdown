@@ -11,6 +11,121 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- generated:start -->
 
 
+## [v2.16.0](https://github.com/carlos3g/element-dropdown/releases/tag/v2.16.0) — 2026-04-19
+
+Accessibility and performance pass. Two additive public props
+(`accessibilityHint`, `searchDebounce`), several default-behaviour
+improvements for screen readers, a round of long-standing bug
+fixes, and an internal refactor that deduplicates Dropdown and
+MultiSelect into a private `src/internal/` surface. Drop-in
+compatibility preserved.
+
+#### New props
+
+- **`accessibilityHint?: string`** (Dropdown + MultiSelect) —
+  hint announced after the trigger's label and combobox role.
+- **`searchDebounce?: number`** (Dropdown + MultiSelect) —
+  milliseconds to throttle the filter pass for large lists. The
+  text input stays responsive; only the search matcher is
+  debounced. `0` / omitted is the synchronous default.
+- **`Section<T>`** type is now exported for consumers building
+  typed section arrays.
+
+#### Accessibility
+
+All improvements are on by default:
+
+- **Items, trigger, chips accessible by default.** The long-standing
+  `accessible={!!accessibilityLabel}` gate has been removed, so
+  every touchable surface reaches VoiceOver / TalkBack whether or
+  not the consumer sets a component-level label.
+- **Roles:** `button` on list rows, `header` on the default
+  section header, `combobox` on triggers (unchanged). Decorative
+  `ⓧ` glyph on chips hidden from the a11y tree.
+- **Chip-row live region (MultiSelect).** New selections announce
+  via `accessibilityLiveRegion=\"polite\"`.
+- **Modal isolation.** Overlay sets `accessibilityViewIsModal` so
+  VoiceOver focus can't escape to the view behind the dropdown.
+- **Reduce Motion.** Modal animation disables itself when the OS
+  preference is set, with live updates via
+  `AccessibilityInfo.reduceMotionChanged`.
+- **Search input label** now respects `searchInputProps.accessibilityLabel`
+  (previously overwritten by the derived label).
+
+#### Bug fixes
+
+- **TextInput** now syncs to an empty-string `value` prop
+  (previous `if (value) setText(value)` guard silently skipped
+  `''`).
+- **MultiSelect `inside` mode** now honours `hitSlop`,
+  `allowFontScaling`, `selectedTextProps`, and `selectedTextStyle`
+  — all of them were silently dropped from the inside-mode
+  trigger.
+- **MultiSelect chip row** no longer renders every item as a chip
+  when `value` is `undefined`. (The filter predicate returned the
+  item instead of a boolean, and `value?.indexOf(...)` was
+  `undefined !== -1 === true`.)
+- **SelectCountry** now honours `imageField` when rendering the
+  trigger image (was hardcoded to `selectItem.image`).
+- **Dropdown** items with a `valueField` equal to `null` no
+  longer appear selected when nothing is picked.
+- **\`_assign(item, { _index })\`** mutation of consumer data
+  removed; frozen / Redux-owned items render without warnings or
+  throws.
+- **`setKey(Math.random())`** vestigial force-update removed.
+- **`keyboardStyle: ViewStyle = {}`** dead code removed from both
+  `_renderModal` paths.
+
+#### Performance
+
+- **Imperative handle stability.** `ref.current` identity is
+  now stable from mount to unmount instead of flipping on every
+  render. Consumers storing the ref in state / context / effect
+  deps no longer see spurious renders.
+- **SectionList row memoisation.** The `renderItem` wrapper used
+  in the sectioned render path is memoised, avoiding a fresh
+  identity (and full row re-render) on every parent render.
+
+#### Internal refactor
+
+Shared pieces between Dropdown and MultiSelect (measurement,
+keyboard tracking, search normalisation, section header, search
+input, key extractor, reduce-motion, debounce) are extracted to a
+private [`src/internal/`](https://github.com/carlos3g/element-dropdown/tree/master/src/internal) surface.
+Not re-exported from `src/index.tsx`. Each component shed ~130
+lines of duplicated code and now consumes the primitives.
+
+#### Tooling
+
+- Bumped to **TypeScript 6.0** with `moduleResolution: \"bundler\"`
+  and an explicit `rootDir` in `tsconfig.build.json`.
+- GitHub Actions bumped (checkout 4 → 6, setup-node 4 → 6,
+  deploy-pages 4 → 5, upload-pages-artifact 3 → 5).
+- `docs-version.yml` and `changelog.yml` now rebase-and-retry
+  on push so release-time race conditions don't leave the repo
+  half-done.
+- `dangerfile.js` fixed for ESM module loading in danger@13 (was
+  throwing `__dirname is not defined` on every perf-workflow
+  run).
+
+#### Tests
+
+87 → 187 tests (+100). New suites for internal primitives
+(`internal.test.ts`, `internal-components.test.tsx`,
+`internal-hooks.test.tsx`) plus regression coverage for every
+bug fixed above. `compatibility.test.tsx` still green — 21
+assertions over the drop-in public surface.
+
+#### Docs
+
+- Rewritten [Accessibility](https://carlos3g.github.io/element-dropdown/docs/accessibility)
+  page.
+- Dropdown + MultiSelect prop tables updated with
+  `accessibilityHint`, `searchDebounce`, and the new a11y
+  default-behaviour notes.
+- CLAUDE.md grew an "Internal architecture" + "Accessibility
+  invariants" section.
+
 ## [v2.15.0](https://github.com/carlos3g/element-dropdown/releases/tag/v2.15.0) — 2026-04-19
 
 Sectioned lists. A single new prop (`sections`) turns Dropdown and
