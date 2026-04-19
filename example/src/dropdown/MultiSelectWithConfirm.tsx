@@ -21,7 +21,7 @@ const MultiSelectComponent = () => {
     return (
       <View style={styles.item}>
         <Text style={styles.selectedTextStyle}>{item.label}</Text>
-        <AntDesign style={styles.icon} name="bulb1" size={20} />
+        <AntDesign style={styles.icon} name="bulb" size={20} />
       </View>
     );
   };
@@ -50,7 +50,7 @@ const MultiSelectComponent = () => {
           <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
             <View style={styles.selectedStyle}>
               <Text style={styles.textSelectedStyle}>{item.label}</Text>
-              <AntDesign style={styles.icon} name="Safety" size={20} />
+              <AntDesign style={styles.icon} name="safety" size={20} />
             </View>
           </TouchableOpacity>
         )}
@@ -71,7 +71,7 @@ const MultiSelectComponent = () => {
           ]);
         }}
         renderLeftIcon={() => (
-          <AntDesign style={styles.icon} name="rocket1" size={20} />
+          <AntDesign style={styles.icon} name="rocket" size={20} />
         )}
       />
     </View>

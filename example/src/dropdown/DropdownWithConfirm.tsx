@@ -64,7 +64,7 @@ const DropdownComponent = () => {
         ]);
       }}
       renderLeftIcon={() => (
-        <AntDesign style={styles.icon} name="addusergroup" size={20} />
+        <AntDesign style={styles.icon} name="usergroup-add" size={20} />
       )}
     />
   );

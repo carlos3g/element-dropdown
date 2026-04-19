@@ -66,7 +66,7 @@ const DropdownComponent = () => {
           <AntDesign
             style={styles.icon}
             color={isFocus ? 'blue' : 'black'}
-            name="folderopen"
+            name="folder-open"
             size={20}
           />
         )}
