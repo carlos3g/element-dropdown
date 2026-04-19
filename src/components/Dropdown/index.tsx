@@ -153,13 +153,28 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       };
     }, [W, orientation]);
 
-    useImperativeHandle(currentRef, () => {
-      return { open: eventOpen, close: eventClose };
+    // Keep the imperative handle stable across renders: `open`/`close`
+    // are pinned to a ref that tracks the latest closure-captured
+    // versions of `eventOpen` / `eventClose`. Without this, the
+    // default `useImperativeHandle(ref, factory)` runs on every render
+    // and replaces `ref.current` with a brand-new object, which
+    // invalidates any effect downstream that depends on ref identity.
+    const imperativeRef = useRef({
+      open: () => {},
+      close: () => {},
     });
+    useImperativeHandle(
+      currentRef,
+      () => ({
+        open: () => imperativeRef.current.open(),
+        close: () => imperativeRef.current.close(),
+      }),
+      []
+    );
 
     useEffect(() => {
-      return eventClose;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const handle = imperativeRef.current;
+      return () => handle.close();
     }, []);
 
     const excludeData = useCallback(
@@ -236,6 +251,12 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         }
       }
     }, [disable, onBlur]);
+
+    // Pin the latest open/close onto the stable imperative ref.
+    // Assigning during render is safe here because the ref is private
+    // — nothing reads it until the user calls `ref.current.open()`.
+    imperativeRef.current.open = eventOpen;
+    imperativeRef.current.close = eventClose;
 
     const fontStyle = useMemo(
       () => (fontFamily ? { fontFamily } : undefined),
@@ -647,6 +668,14 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       [valueField]
     );
 
+    // Stable wrapper so SectionList doesn't see a fresh renderItem
+    // identity every render (which would force every row to re-render
+    // even when nothing about the item changed).
+    const renderSectionItem = useCallback(
+      ({ item }: { item: any }) => _renderItem({ item, index: 0 }) as any,
+      [_renderItem]
+    );
+
     const _renderList = useCallback(
       (isTopPosition: boolean) => {
         const isInverted = !inverted ? false : isTopPosition;
@@ -662,9 +691,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 // `inverted` on SectionList would flip section-header
                 // order too, which is confusing — keep the natural
                 // reading order even when opening upward.
-                renderItem={({ item }) =>
-                  _renderItem({ item, index: 0 }) as any
-                }
+                renderItem={renderSectionItem}
                 renderSectionHeader={_renderSectionHeader}
                 keyExtractor={keyExtractor}
                 stickySectionHeadersEnabled
@@ -714,6 +741,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         flatListProps,
         keyExtractor,
         listData,
+        renderSectionItem,
         listSections,
         inverted,
         onEndReached,

@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -153,13 +154,23 @@ const MultiSelectComponent = React.forwardRef<
     };
   }, [W, orientation]);
 
-  useImperativeHandle(currentRef, () => {
-    return { open: eventOpen, close: eventClose };
+  // Stable imperative handle. See Dropdown for the full rationale.
+  const imperativeRef = useRef({
+    open: () => {},
+    close: () => {},
   });
+  useImperativeHandle(
+    currentRef,
+    () => ({
+      open: () => imperativeRef.current.open(),
+      close: () => imperativeRef.current.close(),
+    }),
+    []
+  );
 
   useEffect(() => {
-    return eventClose;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const handle = imperativeRef.current;
+    return () => handle.close();
   }, []);
 
   const excludeData = useCallback(
@@ -251,6 +262,11 @@ const MultiSelectComponent = React.forwardRef<
       }
     }
   }, [disable, onBlur]);
+
+  // Pin open/close onto the stable imperative ref (see Dropdown for
+  // rationale).
+  imperativeRef.current.open = eventOpen;
+  imperativeRef.current.close = eventClose;
 
   const fontStyle = useMemo(
     () => (fontFamily ? { fontFamily } : undefined),
@@ -634,6 +650,13 @@ const MultiSelectComponent = React.forwardRef<
     [valueField]
   );
 
+  // Stable wrapper for SectionList's renderItem — avoids a fresh
+  // identity per render and the downstream row re-render that causes.
+  const renderSectionItem = useCallback(
+    ({ item }: { item: any }) => _renderItem({ item, index: 0 }) as any,
+    [_renderItem]
+  );
+
   const _renderList = useCallback(
     (isTopPosition: boolean) => {
       const isInverted = !inverted ? false : isTopPosition;
@@ -646,7 +669,7 @@ const MultiSelectComponent = React.forwardRef<
               accessibilityLabel={accessibilityLabel + ' sectionlist'}
               keyboardShouldPersistTaps="handled"
               sections={listSections}
-              renderItem={({ item }) => _renderItem({ item, index: 0 }) as any}
+              renderItem={renderSectionItem}
               renderSectionHeader={_renderSectionHeader}
               keyExtractor={keyExtractor}
               stickySectionHeadersEnabled
@@ -694,6 +717,7 @@ const MultiSelectComponent = React.forwardRef<
       inverted,
       onEndReached,
       onEndReachedThreshold,
+      renderSectionItem,
       renderModalHeader,
       renderSearch,
       showsVerticalScrollIndicator,
