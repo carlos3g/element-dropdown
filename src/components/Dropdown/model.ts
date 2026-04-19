@@ -3,7 +3,9 @@ import type {
   FlatListProps,
   ImageStyle,
   Insets,
+  KeyboardTypeOptions,
   StyleProp,
+  TextInputProps,
   TextProps,
   TextStyle,
   ViewStyle,
@@ -29,6 +31,7 @@ export interface DropdownProps<T> {
   selectedTextProps?: TextProps;
   itemContainerStyle?: StyleProp<ViewStyle>;
   itemTextStyle?: StyleProp<TextStyle>;
+  activeItemTextStyle?: StyleProp<TextStyle>;
   inputSearchStyle?: StyleProp<TextStyle>;
   iconStyle?: StyleProp<ImageStyle>;
   maxHeight?: number;
@@ -41,9 +44,20 @@ export interface DropdownProps<T> {
   placeholder?: string;
   labelField: keyof T;
   valueField: keyof T;
-  searchField?: keyof T;
+  searchField?: keyof T | (keyof T)[];
   disabledField?: keyof T;
   search?: boolean;
+  searchKeyboardType?: KeyboardTypeOptions;
+  searchInputProps?: Omit<
+    TextInputProps,
+    | 'value'
+    | 'onChangeText'
+    | 'placeholder'
+    | 'placeholderTextColor'
+    | 'allowFontScaling'
+    | 'keyboardType'
+  >;
+  persistSearch?: boolean;
   hitSlop?: Insets | number;
   allowFontScaling?: boolean;
   /**
@@ -72,13 +86,18 @@ export interface DropdownProps<T> {
   closeModalWhenSelectedItem?: boolean;
   excludeItems?: T[];
   excludeSearchItems?: T[];
+  hideSelectedFromList?: boolean;
+  onEndReached?: () => void;
+  onEndReachedThreshold?: number;
   onChange: (item: T) => void;
   renderLeftIcon?: (visible?: boolean) => React.ReactElement | null;
   renderRightIcon?: (visible?: boolean) => React.ReactElement | null;
+  renderSelectedItem?: (visible?: boolean) => React.ReactElement | null;
   renderItem?: (item: T, selected?: boolean) => React.ReactElement | null;
   renderInputSearch?: (
     onSearch: (text: string) => void
   ) => React.ReactElement | null;
+  renderModalHeader?: (close: () => void) => React.ReactElement | null;
   onFocus?: () => void;
   onBlur?: () => void;
   searchQuery?: (keyword: string, labelValue: string) => boolean;

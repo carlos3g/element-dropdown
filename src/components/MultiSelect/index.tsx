@@ -56,6 +56,7 @@ const MultiSelectComponent = React.forwardRef<
     selectedTextStyle,
     itemContainerStyle,
     itemTextStyle,
+    activeItemTextStyle,
     iconStyle,
     selectedTextProps = {},
     activeColor = '#F6F7F8',
@@ -68,6 +69,9 @@ const MultiSelectComponent = React.forwardRef<
     searchPlaceholderTextColor = 'gray',
     placeholder = 'Select item',
     search = false,
+    searchKeyboardType,
+    searchInputProps,
+    persistSearch = false,
     maxHeight = 340,
     minHeight = 0,
     maxSelect,
@@ -80,6 +84,7 @@ const MultiSelectComponent = React.forwardRef<
     renderRightIcon,
     renderSelectedItem,
     renderInputSearch,
+    renderModalHeader,
     onFocus,
     onBlur,
     showsVerticalScrollIndicator = true,
@@ -96,8 +101,13 @@ const MultiSelectComponent = React.forwardRef<
     itemAccessibilityLabelField,
     visibleSelectedItem = true,
     mode = 'default',
+    closeModalWhenSelectedItem = false,
     excludeItems = [],
     excludeSearchItems = [],
+    hideSelectedFromList = false,
+    selectedToTop = false,
+    onEndReached,
+    onEndReachedThreshold = 0.5,
     hitSlop,
     allowFontScaling,
     isInsideModal = false,
@@ -137,18 +147,41 @@ const MultiSelectComponent = React.forwardRef<
 
   const excludeData = useCallback(
     (data: any[]) => {
+      let result = data || [];
       if (excludeItems.length > 0) {
-        const getData = _differenceWith(
-          data,
-          excludeItems,
-          (obj1, obj2) => _get(obj1, valueField) === _get(obj2, valueField)
-        );
-        return getData || [];
-      } else {
-        return data || [];
+        result =
+          _differenceWith(
+            result,
+            excludeItems,
+            (obj1, obj2) => _get(obj1, valueField) === _get(obj2, valueField)
+          ) || [];
       }
+      if (hideSelectedFromList && currentValue.length > 0) {
+        result = result.filter(
+          (item) => !currentValue.includes(_get(item, valueField))
+        );
+      }
+      if (selectedToTop && currentValue.length > 0 && !hideSelectedFromList) {
+        const selected: any[] = [];
+        const rest: any[] = [];
+        for (const item of result) {
+          if (currentValue.includes(_get(item, valueField))) {
+            selected.push(item);
+          } else {
+            rest.push(item);
+          }
+        }
+        result = [...selected, ...rest];
+      }
+      return result;
     },
-    [excludeItems, valueField]
+    [
+      excludeItems,
+      valueField,
+      hideSelectedFromList,
+      selectedToTop,
+      currentValue,
+    ]
   );
 
   useEffect(() => {
@@ -177,14 +210,14 @@ const MultiSelectComponent = React.forwardRef<
     }
   };
 
-  const eventClose = () => {
+  const eventClose = useCallback(() => {
     if (!disable) {
       setVisible(false);
       if (onBlur) {
         onBlur();
       }
     }
-  };
+  }, [disable, onBlur]);
 
   const font = useCallback(() => {
     if (fontFamily) {
@@ -286,6 +319,13 @@ const MultiSelectComponent = React.forwardRef<
         return Keyboard.dismiss();
       }
 
+      if (!visibleStatus && !persistSearch) {
+        if (onChangeText) {
+          onChangeText('');
+        }
+        setSearchText('');
+      }
+
       _measure();
       setVisible(visibleStatus);
 
@@ -304,7 +344,7 @@ const MultiSelectComponent = React.forwardRef<
         }
       }
 
-      if (searchText.length > 0) {
+      if (searchText.length > 0 && (visibleStatus || persistSearch)) {
         onSearch(searchText);
       }
     }
@@ -318,28 +358,34 @@ const MultiSelectComponent = React.forwardRef<
     searchText,
     onFocus,
     onBlur,
+    onChangeText,
+    persistSearch,
   ]);
 
   const onSearch = useCallback(
     (text: string) => {
       if (text.length > 0) {
-        const defaultFilterFunction = (e: any) => {
-          const item = _get(e, searchField || labelField)
-            ?.toLowerCase()
-            .replace(/\s/g, '')
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '');
-          const key = text
+        const normalize = (raw: unknown) =>
+          String(raw ?? '')
             .toLowerCase()
             .replace(/\s/g, '')
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '');
 
-          return item.indexOf(key) >= 0;
-        };
+        const fields: any[] = Array.isArray(searchField)
+          ? searchField
+          : [searchField || labelField];
+
+        const key = normalize(text);
+
+        const defaultFilterFunction = (e: any) =>
+          fields.some((field) => normalize(_get(e, field)).indexOf(key) >= 0);
 
         const propSearchFunction = (e: any) => {
-          const labelText = _get(e, searchField || labelField);
+          const primary =
+            (Array.isArray(searchField) ? searchField[0] : searchField) ||
+            labelField;
+          const labelText = _get(e, primary as any);
 
           return searchQuery?.(text, labelText);
         };
@@ -414,14 +460,30 @@ const MultiSelectComponent = React.forwardRef<
       }
 
       setKey(Math.random());
+
+      if (closeModalWhenSelectedItem) {
+        if (!persistSearch) {
+          if (onChangeText) {
+            onChangeText('');
+          }
+          setSearchText('');
+          onSearch('');
+        }
+        eventClose();
+      }
     },
     [
+      closeModalWhenSelectedItem,
       confirmSelectItem,
       confirmUnSelectItem,
       currentValue,
+      eventClose,
       maxSelect,
       onChange,
+      onChangeText,
       onConfirmSelectItem,
+      onSearch,
+      persistSearch,
       valueField,
     ]
   );
@@ -513,6 +575,7 @@ const MultiSelectComponent = React.forwardRef<
                 style={StyleSheet.flatten([
                   styles.textItem,
                   itemTextStyle,
+                  selected && activeItemTextStyle,
                   font(),
                 ])}
               >
@@ -526,6 +589,7 @@ const MultiSelectComponent = React.forwardRef<
     [
       accessibilityLabel,
       activeColor,
+      activeItemTextStyle,
       allowFontScaling,
       checkSelected,
       disabledField,
@@ -553,12 +617,15 @@ const MultiSelectComponent = React.forwardRef<
       } else {
         return (
           <CInput
+            autoCorrect={false}
+            {...searchInputProps}
             testID={testID + ' input'}
             accessibilityLabel={accessibilityLabel + ' input'}
             allowFontScaling={allowFontScaling}
             style={[styles.input, inputSearchStyle]}
             inputStyle={[inputSearchStyle, font()]}
-            autoCorrect={false}
+            value={searchText}
+            keyboardType={searchKeyboardType}
             placeholder={searchPlaceholder}
             onChangeText={(e) => {
               if (onChangeText) {
@@ -586,8 +653,11 @@ const MultiSelectComponent = React.forwardRef<
     onSearch,
     renderInputSearch,
     search,
+    searchInputProps,
+    searchKeyboardType,
     searchPlaceholder,
     searchPlaceholderTextColor,
+    searchText,
     testID,
   ]);
 
@@ -610,26 +680,31 @@ const MultiSelectComponent = React.forwardRef<
               return key != null ? String(key) : index.toString();
             }}
             showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+            onEndReached={onEndReached}
+            onEndReachedThreshold={onEndReachedThreshold}
           />
         );
       };
 
       return (
-        <TouchableWithoutFeedback>
-          <View style={styles.flexShrink}>
-            {isInverted && _renderListHelper()}
-            {renderSearch()}
-            {!isInverted && _renderListHelper()}
-          </View>
-        </TouchableWithoutFeedback>
+        <View style={styles.flexShrink}>
+          {renderModalHeader?.(eventClose)}
+          {isInverted && _renderListHelper()}
+          {renderSearch()}
+          {!isInverted && _renderListHelper()}
+        </View>
       );
     },
     [
       _renderItem,
       accessibilityLabel,
+      eventClose,
       flatListProps,
       listData,
       inverted,
+      onEndReached,
+      onEndReachedThreshold,
+      renderModalHeader,
       renderSearch,
       showsVerticalScrollIndicator,
       testID,
@@ -646,7 +721,9 @@ const MultiSelectComponent = React.forwardRef<
           return bottom < keyboardHeight + height;
         }
 
-        return bottom < (search ? 150 : 100);
+        // Trigger in bottom half opens upward (upstream #264).
+        const minSlack = search ? 150 : 100;
+        return bottom < Math.max(minSlack, H / 2);
       };
 
       if (width && top && bottom) {
@@ -680,7 +757,7 @@ const MultiSelectComponent = React.forwardRef<
             supportedOrientations={['landscape', 'portrait']}
             onRequestClose={showOrClose}
           >
-            <TouchableWithoutFeedback onPress={showOrClose}>
+            <TouchableWithoutFeedback accessible={false} onPress={showOrClose}>
               <View
                 style={StyleSheet.flatten([
                   styles.flex1,
@@ -737,6 +814,7 @@ const MultiSelectComponent = React.forwardRef<
     containerStyle,
     styleHorizontal,
     _renderList,
+    H,
   ]);
 
   const unSelect = (item: any) => {

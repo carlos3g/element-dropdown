@@ -53,6 +53,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       selectedTextStyle,
       itemContainerStyle,
       itemTextStyle,
+      activeItemTextStyle,
       inputSearchStyle,
       iconStyle,
       selectedTextProps = {},
@@ -69,6 +70,9 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       searchPlaceholderTextColor = 'gray',
       placeholder = 'Select item',
       search = false,
+      searchKeyboardType,
+      searchInputProps,
+      persistSearch = false,
       maxHeight = 340,
       minHeight = 0,
       disable = false,
@@ -76,8 +80,10 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       inverted = true,
       renderLeftIcon,
       renderRightIcon,
+      renderSelectedItem,
       renderItem,
       renderInputSearch,
+      renderModalHeader,
       onFocus,
       onBlur,
       autoScroll = true,
@@ -95,6 +101,9 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       closeModalWhenSelectedItem = true,
       excludeItems = [],
       excludeSearchItems = [],
+      hideSelectedFromList = false,
+      onEndReached,
+      onEndReachedThreshold = 0.5,
       hitSlop,
       allowFontScaling,
       isInsideModal = false,
@@ -134,18 +143,26 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
 
     const excludeData = useCallback(
       (data: any[]) => {
+        let result = data || [];
         if (excludeItems.length > 0) {
-          const getData = _differenceWith(
-            data,
-            excludeItems,
-            (obj1, obj2) => _get(obj1, valueField) === _get(obj2, valueField)
-          );
-          return getData || [];
-        } else {
-          return data || [];
+          result =
+            _differenceWith(
+              result,
+              excludeItems,
+              (obj1, obj2) => _get(obj1, valueField) === _get(obj2, valueField)
+            ) || [];
         }
+        if (hideSelectedFromList && currentValue) {
+          const selectedKey = _get(currentValue, valueField);
+          if (selectedKey != null) {
+            result = result.filter(
+              (item) => _get(item, valueField) !== selectedKey
+            );
+          }
+        }
+        return result;
       },
-      [excludeItems, valueField]
+      [excludeItems, valueField, hideSelectedFromList, currentValue]
     );
 
     useEffect(() => {
@@ -333,7 +350,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
           return Keyboard.dismiss();
         }
 
-        if (!visibleStatus) {
+        if (!visibleStatus && !persistSearch) {
           if (onChangeText) {
             onChangeText('');
           }
@@ -373,28 +390,33 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       searchText,
       onFocus,
       onBlur,
+      persistSearch,
     ]);
 
     const onSearch = useCallback(
       (text: string) => {
         if (text.length > 0) {
-          const defaultFilterFunction = (e: any) => {
-            const item = _get(e, searchField || labelField)
-              ?.toLowerCase()
-              .replace(/\s/g, '')
-              .normalize('NFD')
-              .replace(/[\u0300-\u036f]/g, '');
-            const key = text
+          const normalize = (raw: unknown) =>
+            String(raw ?? '')
               .toLowerCase()
               .replace(/\s/g, '')
               .normalize('NFD')
               .replace(/[\u0300-\u036f]/g, '');
 
-            return item.indexOf(key) >= 0;
-          };
+          const fields: any[] = Array.isArray(searchField)
+            ? searchField
+            : [searchField || labelField];
+
+          const key = normalize(text);
+
+          const defaultFilterFunction = (e: any) =>
+            fields.some((field) => normalize(_get(e, field)).indexOf(key) >= 0);
 
           const propSearchFunction = (e: any) => {
-            const labelText = _get(e, searchField || labelField);
+            const primary =
+              (Array.isArray(searchField) ? searchField[0] : searchField) ||
+              labelField;
+            const labelText = _get(e, primary as any);
 
             return searchQuery?.(text, labelText);
           };
@@ -442,11 +464,13 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         onChange(item);
 
         if (closeModalWhenSelectedItem) {
-          if (onChangeText) {
-            onChangeText('');
+          if (!persistSearch) {
+            if (onChangeText) {
+              onChangeText('');
+            }
+            setSearchText('');
+            onSearch('');
           }
-          setSearchText('');
-          onSearch('');
           eventClose();
         }
       },
@@ -458,6 +482,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         onConfirmSelectItem,
         onSearch,
         closeModalWhenSelectedItem,
+        persistSearch,
       ]
     );
 
@@ -473,34 +498,38 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
           hitSlop={hitSlop}
           onPress={showOrClose}
         >
-          <View style={styles.dropdown}>
-            {renderLeftIcon?.(visible)}
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={[
-                styles.textItem,
-                isSelected !== null ? selectedTextStyle : placeholderStyle,
-                font(),
-              ]}
-              {...selectedTextProps}
-            >
-              {isSelected !== null
-                ? _get(currentValue, labelField)
-                : placeholder}
-            </Text>
-            {renderRightIcon ? (
-              renderRightIcon(visible)
-            ) : (
-              <Image
-                source={ic_down}
-                style={StyleSheet.flatten([
-                  styles.icon,
-                  { tintColor: iconColor },
-                  iconStyle,
-                ])}
-              />
-            )}
-          </View>
+          {renderSelectedItem ? (
+            renderSelectedItem(visible)
+          ) : (
+            <View style={styles.dropdown}>
+              {renderLeftIcon?.(visible)}
+              <Text
+                allowFontScaling={allowFontScaling}
+                style={[
+                  styles.textItem,
+                  isSelected !== null ? selectedTextStyle : placeholderStyle,
+                  font(),
+                ]}
+                {...selectedTextProps}
+              >
+                {isSelected !== null
+                  ? _get(currentValue, labelField)
+                  : placeholder}
+              </Text>
+              {renderRightIcon ? (
+                renderRightIcon(visible)
+              ) : (
+                <Image
+                  source={ic_down}
+                  style={StyleSheet.flatten([
+                    styles.icon,
+                    { tintColor: iconColor },
+                    iconStyle,
+                  ])}
+                />
+              )}
+            </View>
+          )}
         </TouchableWithoutFeedback>
       );
     };
@@ -545,6 +574,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                   style={StyleSheet.flatten([
                     styles.textItem,
                     itemTextStyle,
+                    selected && activeItemTextStyle,
                     font(),
                   ])}
                 >
@@ -558,6 +588,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       [
         accessibilityLabel,
         activeColor,
+        activeItemTextStyle,
         allowFontScaling,
         currentValue,
         disabledField,
@@ -586,13 +617,15 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         } else {
           return (
             <CInput
+              autoCorrect={false}
+              {...searchInputProps}
               testID={testID + ' input'}
               accessibilityLabel={accessibilityLabel + ' input'}
               allowFontScaling={allowFontScaling}
               style={[styles.input, inputSearchStyle]}
               inputStyle={[inputSearchStyle, font()]}
               value={searchText}
-              autoCorrect={false}
+              keyboardType={searchKeyboardType}
               placeholder={searchPlaceholder}
               onChangeText={(e) => {
                 if (onChangeText) {
@@ -620,6 +653,8 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       onSearch,
       renderInputSearch,
       search,
+      searchInputProps,
+      searchKeyboardType,
       searchPlaceholder,
       searchPlaceholderTextColor,
       testID,
@@ -650,28 +685,33 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 return key != null ? String(key) : index.toString();
               }}
               showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+              onEndReached={onEndReached}
+              onEndReachedThreshold={onEndReachedThreshold}
             />
           );
         };
 
         return (
-          <TouchableWithoutFeedback>
-            <View style={styles.flexShrink}>
-              {isInverted && _renderListHelper()}
-              {renderSearch()}
-              {!isInverted && _renderListHelper()}
-            </View>
-          </TouchableWithoutFeedback>
+          <View style={styles.flexShrink}>
+            {renderModalHeader?.(eventClose)}
+            {isInverted && _renderListHelper()}
+            {renderSearch()}
+            {!isInverted && _renderListHelper()}
+          </View>
         );
       },
       [
         _renderItem,
         accessibilityLabel,
         autoScrollTarget,
+        eventClose,
         flatListProps,
         listData,
         inverted,
+        onEndReached,
+        onEndReachedThreshold,
         onScrollToIndexFailed,
+        renderModalHeader,
         renderSearch,
         showsVerticalScrollIndicator,
         testID,
@@ -688,7 +728,12 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
             return bottom < keyboardHeight + height;
           }
 
-          return bottom < (search ? 150 : 100);
+          // When the trigger sits in the bottom half of the screen, prefer
+          // opening upwards so the list has room to breathe (upstream #264).
+          // The minimum slack stays at 150 (search) / 100 (no search) for
+          // small lists near the threshold.
+          const minSlack = search ? 150 : 100;
+          return bottom < Math.max(minSlack, H / 2);
         };
 
         if (width && top && bottom) {
@@ -722,7 +767,10 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               supportedOrientations={['landscape', 'portrait']}
               onRequestClose={showOrClose}
             >
-              <TouchableWithoutFeedback onPress={showOrClose}>
+              <TouchableWithoutFeedback
+                accessible={false}
+                onPress={showOrClose}
+              >
                 <View
                   style={StyleSheet.flatten([
                     styles.flex1,
@@ -779,6 +827,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       containerStyle,
       styleHorizontal,
       _renderList,
+      H,
     ]);
 
     return (
