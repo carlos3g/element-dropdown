@@ -60,6 +60,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       labelField,
       valueField,
       searchField,
+      disabledField,
       value,
       activeColor = '#F6F7F8',
       fontFamily,
@@ -487,6 +488,9 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       ({ item, index }: { item: any; index: number }) => {
         const isSelected = currentValue && _get(currentValue, valueField);
         const selected = _isEqual(_get(item, valueField), isSelected);
+        const itemDisabled = disabledField
+          ? !!_get(item, disabledField)
+          : false;
         _assign(item, { _index: index });
         return (
           <TouchableHighlight
@@ -497,8 +501,10 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               item,
               itemAccessibilityLabelField || labelField
             )}
+            accessibilityState={{ selected, disabled: itemDisabled }}
+            disabled={itemDisabled}
             underlayColor={activeColor}
-            onPress={() => onSelect(item)}
+            onPress={() => !itemDisabled && onSelect(item)}
           >
             <View
               style={StyleSheet.flatten([
@@ -507,6 +513,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 selected && {
                   backgroundColor: activeColor,
                 },
+                itemDisabled && { opacity: 0.4 },
               ])}
             >
               {renderItem ? (
@@ -530,6 +537,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         accessibilityLabel,
         activeColor,
         currentValue,
+        disabledField,
         font,
         itemAccessibilityLabelField,
         itemContainerStyle,
