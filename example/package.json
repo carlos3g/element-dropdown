@@ -1,7 +1,8 @@
 {
   "name": "example",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
+  "packageManager": "yarn@4.14.1",
+  "main": "index.js",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -9,19 +10,19 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@expo/vector-icons": "^13.0.0",
-    "expo": "~48.0.6",
-    "expo-status-bar": "~1.4.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-native": "0.71.3",
-    "react-native-web": "~0.18.10"
+    "@expo/metro-runtime": "~55.0.9",
+    "@expo/vector-icons": "^15.0.2",
+    "expo": "~55.0.15",
+    "expo-font": "~55.0.6",
+    "expo-status-bar": "~55.0.5",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.4",
+    "react-native-web": "~0.21.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@expo/webpack-config": "^0.17.2",
-    "babel-loader": "^8.1.0",
-    "babel-plugin-module-resolver": "^4.1.0"
+    "@babel/core": "^7.26.0",
+    "babel-plugin-module-resolver": "^5.0.2"
   },
   "private": true
 }

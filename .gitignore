@@ -73,3 +73,13 @@ lib/
 website/.docusaurus/
 website/build/
 website/node_modules/
+
+# Yarn Berry (nodeLinker: node-modules)
+# Keep patches/releases/plugins/sdks/versions if they ever appear, drop everything else
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/releases
+!**/.yarn/sdks
+!**/.yarn/versions
+.pnp.*

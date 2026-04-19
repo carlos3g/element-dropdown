@@ -20,8 +20,16 @@ element-dropdown/
 └── ...
 ```
 
-Root is yarn 1.22 (classic). The docs site in `website/` is its
-own npm workspace — don't mix the two.
+Root is Yarn 4 (Berry, `nodeLinker: node-modules`), activated via
+[Corepack](https://nodejs.org/api/corepack.html). Node 20+ ships
+Corepack; run `corepack enable` once and the `yarn` command in
+this repo will pick up the pinned `packageManager` version
+automatically.
+
+The `example/` app has its own isolated Yarn 4 project with an
+empty-sentinel `yarn.lock` so Yarn doesn't treat it as a child of
+the root. The docs site in `website/` is on its own npm
+workspace — don't mix the three.
 
 ## Development workflow
 

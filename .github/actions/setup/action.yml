@@ -1,5 +1,5 @@
 name: Setup
-description: Setup Node.js and install dependencies
+description: Setup Node.js and install dependencies (Yarn 4 via corepack)
 
 runs:
   using: composite
@@ -9,19 +9,30 @@ runs:
       with:
         node-version-file: .nvmrc
 
-    - name: Cache dependencies
-      id: yarn-cache
+    - name: Enable Corepack (Yarn 4)
+      run: corepack enable
+      shell: bash
+
+    - name: Get Yarn cache location
+      id: yarn-cache-dir
+      run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: Cache Yarn global cache and node_modules
       uses: actions/cache@v4
       with:
         path: |
+          ${{ steps.yarn-cache-dir.outputs.dir }}
           **/node_modules
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        key: ${{ runner.os }}-yarn4-${{ hashFiles('**/yarn.lock', '**/package.json') }}
         restore-keys: |
-          ${{ runner.os }}-yarn-
+          ${{ runner.os }}-yarn4-
 
-    - name: Install dependencies
-      if: steps.yarn-cache.outputs.cache-hit != 'true'
-      run: |
-        yarn install --cwd example --frozen-lockfile
-        yarn install --frozen-lockfile
+    - name: Install example dependencies
+      run: yarn install --immutable
+      shell: bash
+      working-directory: example
+
+    - name: Install root dependencies
+      run: yarn install --immutable
       shell: bash

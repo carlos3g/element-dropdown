@@ -23,10 +23,15 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install dependencies
-        run: |
-          yarn install --cwd example --frozen-lockfile
-          yarn install --frozen-lockfile
+      - name: Enable Corepack (Yarn 4)
+        run: corepack enable
+
+      - name: Install example dependencies
+        run: yarn install --immutable
+        working-directory: example
+
+      - name: Install root dependencies
+        run: yarn install --immutable
 
       - name: Build package
         run: yarn prepack

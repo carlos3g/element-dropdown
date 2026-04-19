@@ -1,38 +1,35 @@
 const path = require('path');
 const escape = require('escape-string-regexp');
-const { getDefaultConfig } = require('@expo/metro-config');
-const exclusionList = require('metro-config/src/defaults/exclusionList');
+const { getDefaultConfig } = require('expo/metro-config');
 const pak = require('../package.json');
 
 const root = path.resolve(__dirname, '..');
 
-const modules = Object.keys({
-  ...pak.peerDependencies,
-});
+// The library declares react and react-native as peers. On web, Metro rewrites
+// `react-native` imports to `react-native-web`, so we also need to hoist
+// `react-native-web` and `react-dom` here to avoid resolution drift.
+const modules = [
+  ...Object.keys({ ...pak.peerDependencies }),
+  'react-native-web',
+  'react-dom',
+];
 
-const defaultConfig = getDefaultConfig(__dirname);
+const config = getDefaultConfig(__dirname);
 
-module.exports = {
-  ...defaultConfig,
+config.projectRoot = __dirname;
+config.watchFolders = [root];
 
-  projectRoot: __dirname,
-  watchFolders: [root],
+// Make sure only one version of each peer dep is loaded — block copies that
+// resolve at the repo root so Metro always picks this app's copy.
+config.resolver.blockList = new RegExp(
+  modules
+    .map((m) => `^${escape(path.join(root, 'node_modules', m))}\\/.*$`)
+    .join('|')
+);
 
-  // We need to make sure that only one version is loaded for peerDependencies
-  // So we block them at the root, and alias them to the versions in example's node_modules
-  resolver: {
-    ...defaultConfig.resolver,
+config.resolver.extraNodeModules = modules.reduce((acc, name) => {
+  acc[name] = path.join(__dirname, 'node_modules', name);
+  return acc;
+}, {});
 
-    blacklistRE: exclusionList(
-      modules.map(
-        (m) =>
-          new RegExp(`^${escape(path.join(root, 'node_modules', m))}\\/.*$`)
-      )
-    ),
-
-    extraNodeModules: modules.reduce((acc, name) => {
-      acc[name] = path.join(__dirname, 'node_modules', name);
-      return acc;
-    }, {}),
-  },
-};
+module.exports = config;
