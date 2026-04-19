@@ -121,7 +121,7 @@ time an item is toggled.
 Same props as [Dropdown](./dropdown#search): `search`, `searchField`
 (supports `keyof T` or `(keyof T)[]`), `searchQuery`,
 `searchKeyboardType`, `searchInputProps`, `persistSearch`,
-`inputSearchStyle`, `searchPlaceholder`,
+`searchDebounce`, `inputSearchStyle`, `searchPlaceholder`,
 `searchPlaceholderTextColor`, `renderInputSearch`, `onChangeText`.
 
 ### Icons & modal header
@@ -166,10 +166,15 @@ Same as Dropdown: `iconStyle`, `iconColor`, `renderLeftIcon`,
 
 ### Accessibility
 
-Same props as Dropdown: `accessibilityLabel`,
+Same props as Dropdown: `accessibilityLabel`, `accessibilityHint`,
 `itemAccessibilityLabelField`, `testID`, `itemTestIDField`,
 `hitSlop`. Trigger announces as `combobox`; items expose
-`selected` / `disabled` state.
+`role="button"` and `selected` / `disabled` state. Chips in the
+selection row carry `role="button"` plus a "remove from selection"
+hint, and the chip row is an
+`accessibilityLiveRegion="polite"` region so screen readers
+announce newly-added chips without the user navigating back. See
+[Accessibility](../accessibility) for the full picture.
 
 ## Imperative ref
 

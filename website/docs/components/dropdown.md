@@ -109,6 +109,7 @@ export function FruitPicker() {
 | `searchKeyboardType` | `KeyboardTypeOptions` | — | `keyboardType` for the search input (e.g. `'numeric'`, `'email-address'`). |
 | `searchInputProps` | `TextInputProps` | — | Extra props spread onto the underlying search `<TextInput>` (`selectionColor`, `returnKeyType`, `autoCapitalize`, etc.). See [Search input passthrough](../guides/search-input-props). |
 | `persistSearch` | `boolean` | `false` | Keep the search text across opens / selections instead of clearing it. |
+| `searchDebounce` | `number` | `0` | Debounce the filter pass by this many ms. The text input stays responsive; only the filter is throttled. Useful for lists in the thousands. |
 | `inputSearchStyle` | `ViewStyle` | — | Style for the search input. |
 | `searchPlaceholder` | `string` | — | Placeholder text for the search input. |
 | `searchPlaceholderTextColor` | `string` | `'gray'` | Placeholder color for the search input. |
@@ -162,6 +163,7 @@ export function FruitPicker() {
 | Prop | Type | Description |
 |---|---|---|
 | `accessibilityLabel` | `string` | Label for the trigger. Propagated as `{label} input` to the search field and `{label} flatlist` to the list. |
+| `accessibilityHint` | `string` | Hint for the trigger, announced after the label and role. |
 | `itemAccessibilityLabelField` | `string` | Field on each item to use for per-item `accessibilityLabel`. Defaults to `labelField`. |
 | `testID` | `string` | testID for the trigger. Propagated as `{testID} input` / `{testID} flatlist`. |
 | `itemTestIDField` | `string` | Field on each item to use as its `testID`. Defaults to `labelField`. |
@@ -169,7 +171,10 @@ export function FruitPicker() {
 
 Triggers expose `accessibilityRole="combobox"` and
 `accessibilityState.expanded` / `.disabled`. Items expose
-`accessibilityState.selected` and `.disabled`. See
+`accessibilityRole="button"` plus `accessibilityState.selected`
+and `.disabled`. The open modal is scoped with
+`accessibilityViewIsModal`, and the OS-level "Reduce Motion"
+preference disables the modal animation automatically. See
 [Accessibility](../accessibility).
 
 ## Imperative ref

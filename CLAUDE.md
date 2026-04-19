@@ -65,9 +65,11 @@ node-modules`. Publishes as `@carlos3g/element-dropdown`.
     `docusaurus docs:version X.Y.Z` and pushes back to `master`
   - the subsequent push fires `docs.yml`, which rebuilds and
     redeploys the site
-- **Stack (as of v2.13.0):** Node 22 (`.nvmrc`), Yarn 4
-  (`packageManager` field, Corepack), TypeScript 5.7, React 18.3
-  (dev), RN 0.76 (dev), Jest 30, ESLint 9 flat config, Prettier 3,
+- **Stack (as of v2.15.0):** Node 22 (`.nvmrc`), Yarn 4
+  (`packageManager` field, Corepack), TypeScript 6.0
+  (`moduleResolution: "bundler"`, explicit `rootDir` in
+  `tsconfig.build.json`), React 18.3 (dev), RN 0.76 (dev), Jest
+  30, ESLint 9 flat config, Prettier 3,
   `react-native-builder-bob` 0.32, Reassure for perf regression
   tests. Consumers stay on `react: *` / `react-native: *` peer
   deps.
@@ -87,6 +89,48 @@ node-modules`. Publishes as `@carlos3g/element-dropdown`.
   — the drop-in promise encoded as a test; read it before
   touching the public surface.
 
+## Internal architecture
+
+Shared primitives live under [`src/internal/`](src/internal):
+hooks (`useTriggerMeasurement`, `useKeyboardTracking`,
+`useReducedMotion`, `useDebouncedCallback`), stateless helpers
+(`normalize`, `createSearchPredicate`, `createKeyExtractor`),
+constants (`EMPTY_DATA`, `styleContainerVertical`,
+`defaultChevronIcon`, `statusBarHeight`), and the `<DropdownSearchInput>` /
+`<DropdownSectionHeader>` components shared by Dropdown and
+MultiSelect. This surface is **private**: nothing in
+`src/internal/` is re-exported from `src/index.tsx`. Tests for it
+live alongside component tests under
+`src/__tests__/internal-*.test.*`.
+
+When you extend a component, prefer extracting a shared primitive
+into `src/internal/` over copy/paste between Dropdown and
+MultiSelect — the two files used to share ~70% of their code
+verbatim and that hurts every time.
+
+## Accessibility invariants
+
+These are promises we make and keep tested:
+
+- **Every touchable is accessible by default.** Never set
+  `accessible={false}` gated on a consumer prop (`{!!accessibilityLabel}`
+  and similar). Items must reach screen readers even when the
+  component has no top-level label — they carry their own label
+  derived from `itemAccessibilityLabelField || labelField`.
+- **Roles are intentional.** Triggers: `combobox`. Items: `button`.
+  Chips (MultiSelect): `button` + a remove hint. Section headers:
+  `header`. Decorative glyphs (`ⓧ`) hidden from the a11y tree.
+- **Modal scope.** The modal overlay sets
+  `accessibilityViewIsModal` so VoiceOver focus can't escape to
+  the view behind it.
+- **Reduce Motion.** `useReducedMotion` flips the modal's
+  `animationType` to `'none'` when the OS preference is set.
+
+See [`website/docs/accessibility.md`](website/docs/accessibility.md)
+for the full rationale. Anything that would undo one of the
+above should land behind a major-version bump with a migration
+note.
+
 ## Conventions
 
 - **Commits:** conventional commits (`fix:`, `feat:`, `chore:`,
@@ -105,6 +149,12 @@ node-modules`. Publishes as `@carlos3g/element-dropdown`.
     patches `measureInWindow` on mocked RN host components so the
     Modal path actually renders in tests. New component behavior
     should come with a test.
+  - Internal primitives (hooks, stateless helpers, private
+    components) are tested separately under
+    `src/__tests__/internal-*.test.*` so the test file names
+    mirror the code layout in `src/internal/`. Prefer a unit
+    test on the primitive over an end-to-end test through
+    Dropdown/MultiSelect when both would catch the regression.
   - Perf tests live in `src/__perf__/*.perf-test.tsx` using
     Reassure. Excluded from `yarn test`; run with `yarn reassure`.
     `.github/workflows/perf.yml` runs baseline vs current on every
