@@ -415,6 +415,8 @@ const MultiSelectComponent = React.forwardRef<
         testID={testID}
         accessible={!!accessibilityLabel}
         accessibilityLabel={accessibilityLabel}
+        accessibilityRole="combobox"
+        accessibilityState={{ expanded: visible, disabled: disable }}
         onPress={showOrClose}
       >
         <View style={styles.dropdown}>
@@ -576,7 +578,10 @@ const MultiSelectComponent = React.forwardRef<
             data={listData}
             inverted={isTopPosition ? inverted : false}
             renderItem={_renderItem}
-            keyExtractor={(_item, index) => index.toString()}
+            keyExtractor={(item, index) => {
+              const key = _get(item, valueField);
+              return key != null ? String(key) : index.toString();
+            }}
             showsVerticalScrollIndicator={showsVerticalScrollIndicator}
           />
         );
@@ -601,6 +606,7 @@ const MultiSelectComponent = React.forwardRef<
       renderSearch,
       showsVerticalScrollIndicator,
       testID,
+      valueField,
     ]
   );
 
@@ -808,10 +814,12 @@ const MultiSelectComponent = React.forwardRef<
         testID={testID}
         accessible={!!accessibilityLabel}
         accessibilityLabel={accessibilityLabel}
+        accessibilityRole="combobox"
+        accessibilityState={{ expanded: visible, disabled: disable }}
         onPress={showOrClose}
       >
         <View style={styles.dropdownInside}>
-          {renderLeftIcon?.()}
+          {renderLeftIcon?.(visible)}
           {value && value?.length > 0 ? (
             _renderItemSelected(true)
           ) : (
@@ -826,7 +834,7 @@ const MultiSelectComponent = React.forwardRef<
             </Text>
           )}
           {renderRightIcon ? (
-            renderRightIcon()
+            renderRightIcon(visible)
           ) : (
             <Image
               source={ic_down}
