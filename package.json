@@ -81,7 +81,7 @@
     "@types/lodash": "^4.17.0",
     "@types/react": "~18.3.0",
     "@types/react-test-renderer": "~18.3.0",
-    "commitlint": "^19",
+    "commitlint": "^20",
     "del-cli": "^5.0.0",
     "eslint": "^9.x",
     "eslint-config-prettier": "^10",
