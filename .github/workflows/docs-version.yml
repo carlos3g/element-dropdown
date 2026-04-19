@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: docs-version-${{ github.event.release.tag_name || github.event.inputs.version }}
@@ -82,3 +83,14 @@ jobs:
                   website/versioned_sidebars/version-${{ steps.v.outputs.version }}-sidebars.json
           git commit -m "docs: snapshot ${{ steps.v.outputs.version }}"
           git push origin master
+
+      # Pushes made with the default GITHUB_TOKEN don't trigger downstream
+      # workflows (GitHub anti-loop safeguard), so the Docs workflow that
+      # would normally rebuild and redeploy the site won't fire on its own.
+      # Kick it off explicitly so the new version snapshot is published.
+      - name: Trigger Docs deploy
+        if: steps.exists.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: .
+        run: gh workflow run docs.yml --repo ${{ github.repository }} --ref master
