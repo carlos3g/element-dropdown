@@ -73,8 +73,3 @@ lib/
 website/.docusaurus/
 website/build/
 website/node_modules/
-
-# Superpowers / skills tooling (vendored by the plugin, not project code)
-.agents/
-.claude/
-skills-lock.json
