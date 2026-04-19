@@ -424,7 +424,7 @@ const MultiSelectComponent = React.forwardRef<
           <Text
             style={StyleSheet.flatten([
               styles.textItem,
-              placeholderStyle,
+              value && value.length > 0 ? selectedTextStyle : placeholderStyle,
               font(),
             ])}
             {...selectedTextProps}

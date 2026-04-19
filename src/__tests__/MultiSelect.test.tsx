@@ -96,6 +96,40 @@ describe('MultiSelect', () => {
     expect(screen.queryAllByText('Apple').length).toBeLessThanOrEqual(1);
   });
 
+  it('applies selectedTextStyle to the trigger label when items are selected', () => {
+    const { rerender } = setup({
+      value: [],
+      placeholderStyle: { color: 'silver' },
+      selectedTextStyle: { color: 'purple' },
+    });
+
+    const initial = screen.getByText('Pick fruits');
+    const initialStyle = Array.isArray(initial.props.style)
+      ? Object.assign({}, ...initial.props.style.filter(Boolean))
+      : initial.props.style;
+    expect(initialStyle.color).toBe('silver');
+
+    rerender(
+      <MultiSelect
+        testID="multiselect"
+        data={data}
+        labelField="label"
+        valueField="value"
+        placeholder="Pick fruits"
+        placeholderStyle={{ color: 'silver' }}
+        selectedTextStyle={{ color: 'purple' }}
+        value={['apple']}
+        onChange={jest.fn()}
+      />
+    );
+
+    const afterSelect = screen.getByText('Pick fruits');
+    const afterStyle = Array.isArray(afterSelect.props.style)
+      ? Object.assign({}, ...afterSelect.props.style.filter(Boolean))
+      : afterSelect.props.style;
+    expect(afterStyle.color).toBe('purple');
+  });
+
   it('exposes open() and close() through the imperative ref', () => {
     const ref = React.createRef<IMultiSelectRef>();
     render(
