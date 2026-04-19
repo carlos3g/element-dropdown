@@ -897,6 +897,7 @@ const MultiSelectComponent = React.forwardRef<
   };
 
   const _renderDropdownInside = () => {
+    const hasSelection = !!(value && value.length > 0);
     return (
       <TouchableWithoutFeedback
         testID={testID}
@@ -904,19 +905,22 @@ const MultiSelectComponent = React.forwardRef<
         accessibilityLabel={accessibilityLabel}
         accessibilityRole="combobox"
         accessibilityState={{ expanded: visible, disabled: disable }}
+        hitSlop={hitSlop}
         onPress={showOrClose}
       >
         <View style={styles.dropdownInside}>
           {renderLeftIcon?.(visible)}
-          {value && value?.length > 0 ? (
+          {hasSelection ? (
             _renderItemSelected(true)
           ) : (
             <Text
+              allowFontScaling={allowFontScaling}
               style={StyleSheet.flatten([
                 styles.textItem,
                 placeholderStyle,
                 fontStyle,
               ])}
+              {...selectedTextProps}
             >
               {placeholder}
             </Text>

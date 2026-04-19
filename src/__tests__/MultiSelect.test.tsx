@@ -772,3 +772,31 @@ describe('MultiSelect — regressions', () => {
     }
   });
 });
+
+describe('MultiSelect — inside mode', () => {
+  // `_renderDropdownInside` used to drop several props that default
+  // mode passed through — hitSlop, allowFontScaling, selectedTextProps
+  // — meaning consumers of `inside={true}` silently lost them.
+
+  it('forwards hitSlop to the trigger', () => {
+    const hitSlop = { top: 20, bottom: 20, left: 20, right: 20 };
+    setup({ inside: true, hitSlop });
+    expect(screen.getByTestId('multiselect').props.hitSlop).toEqual(hitSlop);
+  });
+
+  it('forwards allowFontScaling to the placeholder <Text>', () => {
+    setup({ inside: true, allowFontScaling: false });
+    expect(screen.getByText('Pick fruits').props.allowFontScaling).toBe(false);
+  });
+
+  it('spreads selectedTextProps onto the placeholder <Text>', () => {
+    setup({
+      inside: true,
+      selectedTextProps: { numberOfLines: 2, testID: 'ms-inside-label' },
+    });
+    // testID passthrough is the easy assertion; numberOfLines is on
+    // the same <Text>.
+    const label = screen.getByTestId('ms-inside-label');
+    expect(label.props.numberOfLines).toBe(2);
+  });
+});
