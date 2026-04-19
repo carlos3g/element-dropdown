@@ -99,7 +99,7 @@
     "react-test-renderer": "^18.3.1",
     "reassure": "^1.4.1",
     "release-it": "^20",
-    "typescript": "~5.7.0"
+    "typescript": "~6.0.3"
   },
   "peerDependencies": {
     "react": "*",
