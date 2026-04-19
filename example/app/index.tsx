@@ -21,7 +21,8 @@ type Demo = {
     | '/disabled-items'
     | '/inside-modal'
     | '/custom-search-matcher'
-    | '/multi-select-inside';
+    | '/multi-select-inside'
+    | '/sectioned-lists';
   title: string;
   description: string;
   section: 'Dropdown' | 'MultiSelect' | 'SelectCountry' | 'Fork-only';
@@ -112,6 +113,13 @@ const demos: Demo[] = [
     title: 'Nested inside a Modal (isInsideModal)',
     description:
       'Correct positioning when the dropdown lives inside a native Modal.',
+    section: 'Fork-only',
+  },
+  {
+    href: '/sectioned-lists',
+    title: 'Sectioned lists (sections)',
+    description:
+      'Group items under sticky section headers; search filters per-section.',
     section: 'Fork-only',
   },
 ];
