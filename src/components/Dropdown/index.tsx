@@ -97,6 +97,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       excludeSearchItems = [],
       hitSlop,
       allowFontScaling,
+      isInsideModal = false,
     } = props;
 
     const ref = useRef<View>(null);
@@ -182,6 +183,16 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       }
     }, [disable, onBlur]);
 
+    // Drop the cached measurement whenever the dropdown closes, so the next
+    // open waits for a fresh `measureInWindow` before mounting the Modal.
+    // Without this, reopening paints one frame at the previous position
+    // (upstream #198, #330, #298).
+    useEffect(() => {
+      if (!visible) {
+        setPosition(undefined);
+      }
+    }, [visible]);
+
     const font = useCallback(() => {
       if (fontFamily) {
         return {
@@ -207,17 +218,23 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
           const bottom = H - top + height;
           const left = I18nManager.isRTL ? W - width - pageX : pageX;
 
+          // When nested inside an RN Modal, measureInWindow already
+          // reports coordinates relative to the Modal's own root, so
+          // adding the status-bar offset a second time pushes the list
+          // down by ~24–44 px. See upstream #362.
+          const statusOffset = isInsideModal ? 0 : statusBarHeight;
+
           setPosition({
             isFull,
             width: Math.floor(width),
-            top: Math.floor(top + statusBarHeight),
-            bottom: Math.floor(bottom - statusBarHeight),
+            top: Math.floor(top + statusOffset),
+            bottom: Math.floor(bottom - statusOffset),
             left: Math.floor(left),
             height: Math.floor(height),
           });
         });
       }
-    }, [H, W, orientation, mode]);
+    }, [H, W, orientation, mode, isInsideModal]);
 
     const onKeyboardDidShow = useCallback(
       (e: KeyboardEvent) => {
