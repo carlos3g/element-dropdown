@@ -1,0 +1,135 @@
+.heroBanner {
+  padding: 5rem 0 4rem;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    var(--ifm-color-primary-darkest) 0%,
+    var(--ifm-color-primary) 100%
+  );
+  color: #ffffff;
+}
+
+.heroBanner :global(h1),
+.heroBanner :global(p) {
+  color: #ffffff;
+}
+
+.heroTitle {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.heroTitle code {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  padding: 0.15em 0.3em;
+  border-radius: 6px;
+  font-size: 0.95em;
+}
+
+.heroSubtitle {
+  font-size: 1.1rem;
+  max-width: 44rem;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.heroSubtitle code {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.installSection {
+  padding: 3rem 0 1rem;
+}
+
+.benefits {
+  padding: 3rem 0;
+}
+
+.card {
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.card h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.card p {
+  margin: 0;
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.6;
+}
+
+.why {
+  padding: 3rem 0;
+  background: var(--ifm-color-emphasis-100);
+}
+
+.painList {
+  line-height: 1.8;
+  padding-left: 1.25rem;
+}
+
+.painList li {
+  margin-bottom: 0.4rem;
+}
+
+.demos {
+  padding: 3rem 0;
+}
+
+.demoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.demoGrid img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+  .demoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quick {
+  padding: 3rem 0;
+}
+
+.finalCta {
+  padding: 4rem 0;
+  text-align: center;
+  background: var(--ifm-color-emphasis-100);
+}
+
+.finalCta .buttons {
+  margin-top: 1.5rem;
+}

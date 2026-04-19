@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://carlos3g.github.io/element-dropdown/sitemap.xml

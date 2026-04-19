@@ -1,0 +1,168 @@
+---
+id: migration-from-upstream
+title: Migration from upstream
+sidebar_position: 4
+description: How to migrate from react-native-element-dropdown to @carlos3g/element-dropdown. Two-line import change, no native rebuild, fully backward-compatible API.
+keywords:
+  - react-native-element-dropdown fork
+  - migrate react-native-element-dropdown
+  - react native dropdown migration
+  - drop-in replacement dropdown
+  - '@carlos3g/element-dropdown'
+---
+
+import Head from '@docusaurus/Head';
+
+<Head>
+  <script type="application/ld+json">
+    {JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Is @carlos3g/element-dropdown a drop-in replacement for react-native-element-dropdown?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. The public API is unchanged from react-native-element-dropdown@2.12.x. Migration is a two-line change: update the package name in package.json and update the import path in your code. No config changes, no native rebuild.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Do I need to rebuild native code when switching to the fork?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'No. The library has no native modules. Install the package, update your imports, and keep shipping. Works with Expo Managed and bare React Native identically.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Which bugs are fixed by the fork?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Key fixes include the scrollToIndex out-of-range crash when searching, the open-time position flicker, the non-overridable item padding, the MultiSelect trigger label using placeholderStyle after selection, broken TypeScript type re-exports that broke web and Expo builds, and missing accessibility metadata. See the release notes for the full list.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Are there breaking changes?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'No. TypeScript type re-exports now use export type, which is a correctness fix rather than a breaking change. Default row padding is unchanged; itemContainerStyle can now override it.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What new props does the fork add?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'disabledField (mark individual items as non-interactive), hitSlop (enlarge the trigger tap target), allowFontScaling (respect or override the system font scale), and isInsideModal (fix positioning when nested inside a React Native Modal). All are optional.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Will the fork keep getting updates?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. The fork triages and lands community patches in every release. Releases are published via npm Trusted Publishing with provenance attestation. The roadmap is public in docs/upstream-triage.md.',
+          },
+        },
+      ],
+    })}
+  </script>
+</Head>
+
+# Migration from `react-native-element-dropdown`
+
+The fork is designed for drop-in migration from
+`react-native-element-dropdown@2.12.x`. The public API is
+unchanged — only the package name and import paths differ.
+
+## The two-line change
+
+```sh
+# 1. Remove the upstream and install the fork
+npm uninstall react-native-element-dropdown
+npm install @carlos3g/element-dropdown
+```
+
+```diff
+// 2. Update your imports
+- import { Dropdown, MultiSelect, SelectCountry } from 'react-native-element-dropdown';
++ import { Dropdown, MultiSelect, SelectCountry } from '@carlos3g/element-dropdown';
+```
+
+That's it. No config file changes, no `metro.config.js` tweaks, no
+native rebuild.
+
+## Is the API compatible?
+
+Yes. Every prop and every component signature from `2.12.x` works
+unchanged. Peer dependencies are still `react: *` and
+`react-native: *`. Platforms supported: iOS, Android, and React
+Native Web.
+
+## Do I need to rebuild native code?
+
+No. The library has no native modules, no pods to link, no Gradle
+files to touch. Expo Managed and bare React Native both work
+as-is.
+
+## What improves automatically after migration?
+
+Behavior changes you get for free, with no code changes:
+
+- **TypeScript types are exported as types.** Importing
+  `IDropdownRef` or `IMultiSelectRef` no longer trips bundlers on
+  web or Expo.
+- **The `scrollToIndex out of range` crash is gone.** The common
+  crash when auto-scrolling to a selected item while searching a
+  long list no longer fires.
+- **Open-time flicker is gone.** The list no longer paints for a
+  frame at the previous open's position before snapping to the
+  correct one.
+- **MultiSelect trigger label honors `selectedTextStyle`** once
+  items are selected. Previously it stayed on `placeholderStyle`.
+- **Row padding is customizable.** `itemContainerStyle` can shrink
+  (or expand) the item row. Previously the `padding: 17` was
+  hardcoded deeper in the tree and could only be overridden via
+  `renderItem`.
+- **Duplicate-key warnings from `FlatList` are gone.** The list
+  now extracts keys from `valueField` when present.
+- **Accessibility is announced properly.** Triggers expose
+  `accessibilityRole="combobox"` plus `expanded` and `disabled`
+  states; items expose `selected` and `disabled`.
+
+## What new props are available?
+
+All new props are optional:
+
+- **[`disabledField`](./components/dropdown#behavior)** — mark
+  individual items as non-interactive.
+- **`hitSlop`** — enlarge the trigger tap target without changing
+  layout.
+- **`allowFontScaling`** — respect or override the system font
+  scale for the trigger, the search input, and item labels.
+- **`isInsideModal`** — tells the component it's rendered inside
+  a React Native `<Modal>` so positioning math doesn't
+  double-count the status bar.
+
+## Anything to watch out for?
+
+- The TS type-only re-exports now use `export type`, which means
+  that downstream code that imported `IDropdownRef` as a **value**
+  (e.g. via `typeof`) needs to import it as a type. In practice
+  this trips code only if you were misusing the type in the first
+  place.
+- If your project depends on the exact previous row padding of
+  `17`, no action needed — the default is unchanged. The
+  difference is that `itemContainerStyle` can now override it.
+
+## Still stuck?
+
+Open an issue at
+[`carlos3g/element-dropdown`](https://github.com/carlos3g/element-dropdown/issues).
+If the same symptom appears in the upstream and it's not covered
+by the roadmap in
+[`docs/upstream-triage.md`](https://github.com/carlos3g/element-dropdown/blob/master/docs/upstream-triage.md),
+it's worth reporting.

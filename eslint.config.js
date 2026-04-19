@@ -11,7 +11,15 @@ const compat = new FlatCompat({
 
 module.exports = [
   {
-    ignores: ['node_modules/', 'lib/', 'example/', 'coverage/'],
+    ignores: [
+      'node_modules/',
+      'lib/',
+      'example/',
+      'website/',
+      'coverage/',
+      '.agents/',
+      '.claude/',
+    ],
   },
   ...compat.extends('@react-native'),
   prettierConfig,
