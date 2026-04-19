@@ -1,0 +1,131 @@
+name: Bug report
+description: Something is broken in @carlos3g/element-dropdown.
+title: '[bug] '
+labels: ['bug', 'needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. The more detail you
+        give, the faster someone can act on it.
+
+        Before filing, quickly check:
+        - The [docs](https://carlos3g.github.io/element-dropdown/) — your question may already be answered in a guide.
+        - [`docs/upstream-triage.md`](https://github.com/carlos3g/element-dropdown/blob/master/docs/upstream-triage.md) — this bug may already be tracked.
+        - The [release notes](https://github.com/carlos3g/element-dropdown/releases) — it may already be fixed.
+
+  - type: input
+    id: package-version
+    attributes:
+      label: Package version
+      description: The version of `@carlos3g/element-dropdown` you're on.
+      placeholder: '2.13.0'
+    validations:
+      required: true
+
+  - type: input
+    id: rn-version
+    attributes:
+      label: React Native version
+      placeholder: '0.76.9'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: expo
+    attributes:
+      label: Runtime
+      options:
+        - Expo Managed
+        - Expo bare (prebuild)
+        - Plain React Native (no Expo)
+      default: 0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: Platforms affected
+      options:
+        - label: iOS
+        - label: Android
+        - label: React Native Web
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Describe the actual behavior you observed.
+      placeholder: When I open the Dropdown, the list renders below the screen edge on Android 14.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected to happen
+      placeholder: The list should open against the trigger, aligned to its top or bottom edge.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal list of steps that reproduce the bug.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: snippet
+    attributes:
+      label: Minimal code snippet or repro project
+      description: |
+        Paste the smallest code that triggers the bug. If you can, a link to a [Snack](https://snack.expo.dev) or a repro repo is ideal.
+      render: tsx
+      placeholder: |
+        <Dropdown
+          data={data}
+          labelField="label"
+          valueField="value"
+          onChange={...}
+        />
+    validations:
+      required: true
+
+  - type: dropdown
+    id: upstream
+    attributes:
+      label: Does this also happen in `react-native-element-dropdown` (upstream)?
+      description: Helps triage whether this is a regression from the fork or a long-standing bug.
+      options:
+        - Haven't checked
+        - 'Yes — bug exists upstream too'
+        - 'No — works in upstream, broken in the fork'
+        - Not applicable (fork-only feature)
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Anything else
+      description: Logs, screenshots, screen recordings, related issues.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I have searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am willing to submit a pull request for this.
+          required: false

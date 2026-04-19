@@ -1,0 +1,70 @@
+version: 2
+
+updates:
+  # Library root — yarn, classic v1 lockfile.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+      time: '09:00'
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - library
+    commit-message:
+      prefix: 'chore(deps)'
+      include: scope
+    groups:
+      library-dev-deps-patch:
+        dependency-type: development
+        update-types:
+          - patch
+      library-deps-patch:
+        dependency-type: production
+        update-types:
+          - patch
+    ignore:
+      # The library's public peer deps; never bump unilaterally.
+      - dependency-name: react
+      - dependency-name: react-native
+
+  # Docs site — npm, own package-lock.json.
+  - package-ecosystem: npm
+    directory: /website
+    schedule:
+      interval: monthly
+      day: monday
+      time: '09:00'
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - docs
+    commit-message:
+      prefix: 'chore(website)'
+      include: scope
+    groups:
+      docusaurus:
+        patterns:
+          - '@docusaurus/*'
+      website-patch:
+        update-types:
+          - patch
+
+  # GitHub Actions used across the CI / release / docs workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+      time: '09:00'
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: 'ci(deps)'
+      include: scope

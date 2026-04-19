@@ -1,115 +1,162 @@
 # Contributing
 
-Contributions are always welcome, no matter how large or small!
+Contributions are welcome — bug fixes, small features, doc edits,
+and clean ports of upstream community PRs are all on the table.
 
-We want this community to be friendly and respectful to each other. Please follow it in all your interactions with the project. Before contributing, please read the [code of conduct](./CODE_OF_CONDUCT.md).
+Before you start, please read the [code of conduct](./CODE_OF_CONDUCT.md).
+If you're not sure whether something fits the direction of the
+fork, skim [`docs/upstream-triage.md`](./docs/upstream-triage.md) or
+open a lightweight issue first.
+
+## Project layout
+
+```
+element-dropdown/
+├── src/               # library source (Dropdown, MultiSelect, SelectCountry)
+├── example/           # Expo app you can run locally to exercise the lib
+├── website/           # Docusaurus documentation site (npm-managed, isolated)
+├── docs/              # internal-only: spec docs and upstream triage
+├── .github/workflows/ # CI, release (npm OIDC), docs deploy, docs versioning
+└── ...
+```
+
+Root is yarn 1.22 (classic). The docs site in `website/` is its
+own npm workspace — don't mix the two.
 
 ## Development workflow
 
-To get started with the project, run `yarn` in the root directory to install the required dependencies for each package:
+Install deps at the root (library):
 
 ```sh
 yarn
 ```
 
-> While it's possible to use [`npm`](https://github.com/npm/cli), the tooling is built around [`yarn`](https://classic.yarnpkg.com/), so you'll have an easier time if you use `yarn` for development.
-
-While developing, you can run the [example app](/example/) to test your changes. Any changes you make in your library's JavaScript code will be reflected in the example app without a rebuild. If you change any native code, then you'll need to rebuild the example app.
-
-To start the packager:
+Run the example app to test your changes — the library's JS is
+aliased to the example so edits hot-reload:
 
 ```sh
-yarn example start
-```
-
-To run the example app on Android:
-
-```sh
-yarn example android
-```
-
-To run the example app on iOS:
-
-```sh
+yarn example start       # metro
 yarn example ios
-```
-
-To run the example app on Web:
-
-```sh
+yarn example android
 yarn example web
 ```
 
-Make sure your code passes TypeScript and ESLint. Run the following to verify:
+Before opening a PR, make sure all gates pass:
 
 ```sh
-yarn typecheck
 yarn lint
+yarn typecheck
+yarn test
+yarn prepack             # bob build → lib/commonjs, lib/module, lib/typescript
 ```
 
-To fix formatting errors, run the following:
+To auto-fix lint / format issues:
 
 ```sh
 yarn lint --fix
 ```
 
-Remember to add tests for your change if possible. Run the unit tests by:
+Pre-commit hooks (via lefthook) run `eslint` and `tsc --noEmit` on
+staged files, plus `commitlint` on the commit message. They should
+not normally be bypassed.
+
+## Commit message convention
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org) spec:
+
+- `fix:` bug fix
+- `feat:` new feature
+- `refactor:` code refactor with no behavioral change
+- `docs:` documentation only
+- `test:` adding or updating tests
+- `chore:` tooling, dependencies, CI
+- `style:` formatting changes (Prettier reformats)
+- `ci:` CI / workflow changes
+
+`commitlint` enforces this — non-conforming messages are rejected
+by the `commit-msg` hook.
+
+## Testing
+
+Tests live in `src/__tests__/*.test.{ts,tsx}` and use
+`@testing-library/react-native`. `jest.setup.js` patches
+`measureInWindow` on mocked RN host components so the Modal path
+actually renders in tests.
+
+New behavior should come with a test. Bug fixes should come with a
+regression test when realistic.
+
+## Working on the docs site
+
+The docs site lives in `website/` and is managed with its own
+`npm` + `package-lock.json`. Install and run locally:
 
 ```sh
-yarn test
+cd website
+npm ci
+npm run start            # http://localhost:3000
 ```
 
-### Commit message convention
-
-We follow the [conventional commits specification](https://www.conventionalcommits.org/en) for our commit messages:
-
-- `fix`: bug fixes, e.g. fix crash due to deprecated method.
-- `feat`: new features, e.g. add new method to the module.
-- `refactor`: code refactor, e.g. migrate from class components to hooks.
-- `docs`: changes into documentation, e.g. add usage example for the module..
-- `test`: adding or updating tests, e.g. add integration tests using detox.
-- `chore`: tooling changes, e.g. change CI config.
-
-Our pre-commit hooks verify that your commit message matches this format when committing.
-
-### Linting and tests
-
-[ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [TypeScript](https://www.typescriptlang.org/)
-
-We use [TypeScript](https://www.typescriptlang.org/) for type checking, [ESLint](https://eslint.org/) with [Prettier](https://prettier.io/) for linting and formatting the code, and [Jest](https://jestjs.io/) for testing.
-
-Our pre-commit hooks verify that the linter and tests pass when committing.
-
-### Publishing to npm
-
-We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
-
-To publish new versions, run the following:
+Build + typecheck:
 
 ```sh
-yarn release
+npm run build
+npm run typecheck
 ```
 
-### Scripts
+Docs are versioned. `website/docs/` is the "Next" / unreleased
+copy. Snapshots live in `website/versioned_docs/version-X.Y.Z/`.
+**You don't need to snapshot manually** — when a GitHub Release is
+published, `.github/workflows/docs-version.yml` runs
+`docusaurus docs:version X.Y.Z` automatically and commits the
+snapshot back to `master`. The resulting push triggers `docs.yml`,
+which redeploys the site.
 
-The `package.json` file contains various scripts for common tasks:
+## Publishing
 
-- `yarn bootstrap`: setup project by installing all dependencies and pods.
-- `yarn typecheck`: type-check files with TypeScript.
-- `yarn lint`: lint files with ESLint.
-- `yarn test`: run unit tests with Jest.
-- `yarn example start`: start the Metro server for the example app.
-- `yarn example android`: run the example app on Android.
-- `yarn example ios`: run the example app on iOS.
+Releases are fully automated from a GitHub Release:
 
-### Sending a pull request
+1. Bump `version` in `package.json` (e.g., `2.13.0` → `2.14.0`).
+2. Commit and push to `master` (example:
+   `chore: release 2.14.0`).
+3. `gh release create v2.14.0 --title "v2.14.0" --notes "..."` —
+   or create the Release through the GitHub UI.
 
-> **Working on your first pull request?** You can learn how from this _free_ series: [How to Contribute to an Open Source Project on GitHub](https://app.egghead.io/playlists/how-to-contribute-to-an-open-source-project-on-github).
+What happens automatically:
 
-When you're sending a pull request:
+- `.github/workflows/release.yml` publishes to npm via Trusted
+  Publishing (OIDC, `--access public --provenance`). No
+  `NPM_TOKEN` secret involved.
+- `.github/workflows/docs-version.yml` snapshots the docs at the
+  new version and pushes back to `master`.
+- `.github/workflows/docs.yml` redeploys the site to
+  [carlos3g.github.io/element-dropdown](https://carlos3g.github.io/element-dropdown/).
 
-- Prefer small pull requests focused on one change.
-- Verify that linters and tests are passing.
-- Review the documentation to make sure it looks good.
-- Follow the pull request template when opening a pull request.
-- For pull requests that change the API or implementation, discuss with maintainers first by opening an issue.
+Pre-releases (GitHub's "pre-release" checkbox) are skipped by the
+docs-version workflow on purpose. npm publish still runs.
+
+## Sending a pull request
+
+- Prefer small, focused PRs — one concern per branch.
+- Check [`docs/upstream-triage.md`](./docs/upstream-triage.md) to
+  see if the issue or PR is already tracked; link to it in the
+  description.
+- If your change is a port of an upstream community PR, reference
+  the upstream PR number.
+- The public API must stay backward-compatible with
+  `react-native-element-dropdown@2.12.x`. Drop-in migration is a
+  core commitment — see
+  [`docs/why-this-fork`](https://carlos3g.github.io/element-dropdown/docs/why-this-fork).
+- For a change that affects props or behavior, update the
+  component page in `website/docs/components/` in the same PR.
+- The PR template will remind you of the gate checks. Fill it in.
+
+## Triaging issues
+
+- Apply `needs triage` + `bug` / `enhancement` labels for new
+  reports.
+- If the issue maps to an entry in the upstream triage doc, add
+  the upstream reference to the issue body and cross-link.
+- If the issue needs device-level reproduction (iOS version,
+  Android OEM, etc.), label it `needs repro` and ask for a Snack
+  or sample repo.

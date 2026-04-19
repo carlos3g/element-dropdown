@@ -1,0 +1,72 @@
+name: Feature request
+description: Propose a new prop, component, or behavior.
+title: '[feat] '
+labels: ['enhancement', 'needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Before filing:
+
+        - Scan [`docs/upstream-triage.md`](https://github.com/carlos3g/element-dropdown/blob/master/docs/upstream-triage.md) — your request may already be in the roadmap.
+        - Scan [`docs/recipes`](https://carlos3g.github.io/element-dropdown/docs/guides/imperative-open-close) — the behavior may already be possible with existing props.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the user-facing problem, not the implementation.
+      placeholder: |
+        I want to disable specific items in the list without forking `renderItem`,
+        because my row layout would duplicate a lot of styling.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API
+      description: A prop signature, usage example, or sketch. Optional but helpful.
+      render: tsx
+      placeholder: |
+        <Dropdown
+          data={data}
+          disabledField="locked"
+          {...}
+        />
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing props or workarounds you already tried and why they didn't fit.
+
+  - type: dropdown
+    id: upstream-coverage
+    attributes:
+      label: Is this tracked in the upstream triage?
+      options:
+        - Haven't checked
+        - 'Yes — listed as feature'
+        - 'Yes — listed as deferred'
+        - 'No — new idea'
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: upstream-reference
+    attributes:
+      label: Upstream issue reference (if any)
+      description: Link to the relevant upstream issue or PR, if it exists.
+      placeholder: 'https://github.com/hoaphantn7604/react-native-element-dropdown/issues/170'
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I have searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am willing to submit a pull request for this.
+          required: false

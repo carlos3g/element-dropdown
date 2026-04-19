@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://carlos3g.github.io/element-dropdown/
+    about: Installation, migration guide, component API, and how-to recipes.
+  - name: Migration from react-native-element-dropdown
+    url: https://carlos3g.github.io/element-dropdown/docs/migration-from-upstream
+    about: Two-line change — same API, drop-in replacement.
+  - name: Roadmap and upstream triage
+    url: https://github.com/carlos3g/element-dropdown/blob/master/docs/upstream-triage.md
+    about: See what's already tracked before filing a new issue.
+  - name: Release notes
+    url: https://github.com/carlos3g/element-dropdown/releases
+    about: Check whether your issue is already fixed in a newer version.
