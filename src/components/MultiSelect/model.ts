@@ -243,6 +243,13 @@ export interface MultiSelectProps<T> {
   >;
   /** Keep the search text across opens / selections. @default false */
   persistSearch?: boolean;
+  /**
+   * Debounce the search filter by this many milliseconds. When set,
+   * rapid keystrokes collapse to one filter pass `N` ms after the
+   * user pauses typing. `0` / omitted runs synchronously.
+   * @default 0
+   */
+  searchDebounce?: number;
   /** Fully custom matcher. Return `true` to keep an item. */
   searchQuery?: (keyword: string, labelValue: string) => boolean;
   /** Fully custom search input. */

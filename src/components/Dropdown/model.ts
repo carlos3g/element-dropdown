@@ -288,6 +288,15 @@ export interface DropdownProps<T> {
   /** Keep the search text across opens/selections instead of clearing. @default false */
   persistSearch?: boolean;
   /**
+   * Debounce the search filter by this many milliseconds. When set,
+   * rapid keystrokes collapse to one filter pass `N` ms after the
+   * user pauses typing — handy for lists in the thousands where the
+   * default-per-keystroke filter is visibly sluggish. `0` / omitted
+   * runs the filter synchronously (the historical behaviour).
+   * @default 0
+   */
+  searchDebounce?: number;
+  /**
    * Fully custom matcher. Return `true` to keep an item.
    * @example
    * ```ts

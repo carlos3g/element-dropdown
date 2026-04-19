@@ -30,6 +30,7 @@ import {
   DropdownSectionHeader,
   EMPTY_DATA,
   styleContainerVertical,
+  useDebouncedCallback,
   useKeyboardTracking,
   useReducedMotion,
   useTriggerMeasurement,
@@ -76,6 +77,7 @@ const MultiSelectComponent = React.forwardRef<
     searchKeyboardType,
     searchInputProps,
     persistSearch = false,
+    searchDebounce,
     maxHeight = 340,
     minHeight = 0,
     maxSelect,
@@ -577,13 +579,16 @@ const MultiSelectComponent = React.forwardRef<
     ]
   );
 
+  // See Dropdown: the filter is debounced when `searchDebounce` is
+  // set; the input value and `onChangeText` still fire synchronously.
+  const runSearch = useDebouncedCallback(onSearch, searchDebounce);
   const onSearchTextChange = useCallback(
     (text: string) => {
       setSearchText(text);
       if (onChangeText) onChangeText(text);
-      onSearch(text);
+      runSearch(text);
     },
-    [onChangeText, onSearch]
+    [onChangeText, runSearch]
   );
 
   const renderSearch = useCallback(

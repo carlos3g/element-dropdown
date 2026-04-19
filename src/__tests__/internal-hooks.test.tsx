@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react-native';
 import { AccessibilityInfo, Keyboard, View } from 'react-native';
 
 import {
+  useDebouncedCallback,
   useKeyboardTracking,
   useReducedMotion,
   useTriggerMeasurement,
@@ -264,5 +265,70 @@ describe('useReducedMotion', () => {
     expect(result.current).toBe(false);
 
     addSpy.mockRestore();
+  });
+});
+
+describe('useDebouncedCallback', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('fires synchronously when delay is 0 / undefined', () => {
+    const fn = jest.fn();
+    const { result } = renderHook(() => useDebouncedCallback(fn, 0));
+    act(() => {
+      result.current('a');
+    });
+    expect(fn).toHaveBeenCalledWith('a');
+  });
+
+  it('collapses rapid invocations to the latest args after the delay', () => {
+    const fn = jest.fn();
+    const { result } = renderHook(() => useDebouncedCallback(fn, 100));
+
+    act(() => {
+      result.current('first');
+      result.current('second');
+      result.current('third');
+    });
+    expect(fn).not.toHaveBeenCalled();
+
+    act(() => {
+      jest.advanceTimersByTime(99);
+    });
+    expect(fn).not.toHaveBeenCalled();
+
+    act(() => {
+      jest.advanceTimersByTime(1);
+    });
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith('third');
+  });
+
+  it('returns a stable invoker across renders', () => {
+    const { result, rerender } = renderHook<
+      (...args: [string]) => void,
+      { fn: (s: string) => void; d: number }
+    >(({ fn, d }) => useDebouncedCallback(fn, d), {
+      initialProps: { fn: jest.fn(), d: 50 },
+    });
+    const first = result.current;
+    rerender({ fn: jest.fn(), d: 100 });
+    const second = result.current;
+    expect(first).toBe(second);
+  });
+
+  it('clears a pending timer on unmount', () => {
+    const fn = jest.fn();
+    const { result, unmount } = renderHook(() => useDebouncedCallback(fn, 200));
+    act(() => {
+      result.current('pending');
+    });
+    unmount();
+    jest.advanceTimersByTime(500);
+    expect(fn).not.toHaveBeenCalled();
   });
 });

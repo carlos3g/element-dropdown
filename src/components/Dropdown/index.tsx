@@ -33,6 +33,7 @@ import {
   DropdownSectionHeader,
   EMPTY_DATA,
   styleContainerVertical,
+  useDebouncedCallback,
   useKeyboardTracking,
   useReducedMotion,
   useTriggerMeasurement,
@@ -76,6 +77,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       searchKeyboardType,
       searchInputProps,
       persistSearch = false,
+      searchDebounce,
       maxHeight = 340,
       minHeight = 0,
       disable = false,
@@ -595,13 +597,17 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       ]
     );
 
+    // The filter (onSearch) runs at most once every `searchDebounce`
+    // ms if set; the text-state update and `onChangeText` fire
+    // synchronously so the input stays responsive.
+    const runSearch = useDebouncedCallback(onSearch, searchDebounce);
     const onSearchTextChange = useCallback(
       (text: string) => {
         setSearchText(text);
         if (onChangeText) onChangeText(text);
-        onSearch(text);
+        runSearch(text);
       },
-      [onChangeText, onSearch]
+      [onChangeText, runSearch]
     );
 
     const renderSearch = useCallback(

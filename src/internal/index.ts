@@ -11,6 +11,7 @@ export {
 } from './constants';
 export { createKeyExtractor } from './keyExtractor';
 export { createSearchPredicate, normalize } from './search';
+export { useDebouncedCallback } from './useDebouncedCallback';
 export { useKeyboardTracking } from './useKeyboardTracking';
 export { useReducedMotion } from './useReducedMotion';
 export {
