@@ -114,3 +114,43 @@ describe('SelectCountry', () => {
     expect(screen.queryByText('Brazil')).toBeNull();
   });
 });
+
+describe('SelectCountry — regressions', () => {
+  it('renders the trigger image using the user-supplied `imageField`', () => {
+    // Previous bug: renderLeftIcon read `selectItem.image` directly,
+    // ignoring the user's imageField choice. Anyone using a different
+    // field name (e.g. `flag`, `emoji`) silently got no trigger image.
+    type CountryWithFlag = {
+      label: string;
+      value: string;
+      flag: { uri: string };
+    };
+    const customData: CountryWithFlag[] = [
+      { label: 'Brazil', value: 'BR', flag: { uri: 'https://ex.com/br.png' } },
+      { label: 'France', value: 'FR', flag: { uri: 'https://ex.com/fr.png' } },
+    ];
+
+    render(
+      <SelectCountry
+        testID="country"
+        data={customData}
+        labelField="label"
+        valueField="value"
+        imageField="flag"
+        value="FR"
+        onChange={jest.fn()}
+      />
+    );
+
+    // Find every Image rendered inside the trigger and assert at least
+    // one points at the France flag URI. (There's also a per-row image
+    // for each country, so we assert presence rather than exclusivity.)
+    const triggerFlag = screen.UNSAFE_getAllByType(
+      require('react-native').Image
+    );
+    const sources = triggerFlag
+      .map((img: any) => img.props.source?.uri)
+      .filter(Boolean);
+    expect(sources).toContain('https://ex.com/fr.png');
+  });
+});

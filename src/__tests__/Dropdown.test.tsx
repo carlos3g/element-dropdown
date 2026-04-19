@@ -546,3 +546,177 @@ describe('Dropdown — sections', () => {
     expect(renderSectionHeader).toHaveBeenCalledTimes(sectioned.length);
   });
 });
+
+describe('Dropdown — behaviour coverage', () => {
+  it('persistSearch keeps the search text across close/reopen', () => {
+    setup({ search: true, persistSearch: true });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    fireEvent.changeText(screen.getByTestId('dropdown input'), 'banana');
+    // Close
+    fireEvent.press(screen.getByTestId('dropdown'));
+    // Reopen
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    expect(screen.getByTestId('dropdown input').props.value).toBe('banana');
+  });
+
+  it('default behaviour clears the search text on close', () => {
+    setup({ search: true });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    fireEvent.changeText(screen.getByTestId('dropdown input'), 'banana');
+    // Close
+    fireEvent.press(screen.getByTestId('dropdown'));
+    // Reopen
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    expect(screen.getByTestId('dropdown input').props.value).toBe('');
+  });
+
+  it('hideSelectedFromList removes the currently selected row from the list', () => {
+    setup({ value: 'banana', hideSelectedFromList: true });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    // Banana is shown in the trigger but not in the list rows.
+    expect(screen.getAllByText('Banana').length).toBe(1);
+    expect(screen.getByText('Apple')).toBeTruthy();
+    expect(screen.getByText('Cherry')).toBeTruthy();
+  });
+
+  it('activeItemTextStyle is applied to the selected row only', () => {
+    setup({
+      value: 'banana',
+      activeItemTextStyle: { fontWeight: '900', color: 'red' },
+    });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    const flattenStyle = (node: any) =>
+      Array.isArray(node.props.style)
+        ? Object.assign({}, ...node.props.style.filter(Boolean))
+        : node.props.style;
+
+    // Multiple "Banana" occurrences: one in the trigger, one in the
+    // list. The list entry is the last one rendered.
+    const bananas = screen.getAllByText('Banana');
+    const selectedInList = bananas[bananas.length - 1];
+    const selectedStyle = flattenStyle(selectedInList);
+    expect(selectedStyle.color).toBe('red');
+    expect(selectedStyle.fontWeight).toBe('900');
+
+    // A non-selected row does NOT pick up activeItemTextStyle. Cherry
+    // sits after Banana in the list; Apple gets virtualized away
+    // because autoScroll sets initialScrollIndex past it.
+    const cherryStyle = flattenStyle(screen.getByText('Cherry'));
+    expect(cherryStyle.color).not.toBe('red');
+    expect(cherryStyle.fontWeight).not.toBe('900');
+  });
+
+  it('searchKeyboardType lands on the underlying TextInput', () => {
+    setup({ search: true, searchKeyboardType: 'email-address' });
+    fireEvent.press(screen.getByTestId('dropdown'));
+    expect(screen.getByTestId('dropdown input').props.keyboardType).toBe(
+      'email-address'
+    );
+  });
+
+  it('searchInputProps are spread onto the underlying TextInput', () => {
+    setup({
+      search: true,
+      searchInputProps: {
+        selectionColor: '#007AFF',
+        returnKeyType: 'search',
+        autoCapitalize: 'none',
+      },
+    });
+    fireEvent.press(screen.getByTestId('dropdown'));
+    const input = screen.getByTestId('dropdown input');
+    expect(input.props.selectionColor).toBe('#007AFF');
+    expect(input.props.returnKeyType).toBe('search');
+    expect(input.props.autoCapitalize).toBe('none');
+  });
+
+  it('renderSelectedItem replaces the default trigger body', () => {
+    setup({
+      renderSelectedItem: () => <Text>CUSTOM TRIGGER BODY</Text>,
+    });
+    expect(screen.getByText('CUSTOM TRIGGER BODY')).toBeTruthy();
+    // Placeholder is not rendered when renderSelectedItem takes over.
+    expect(screen.queryByText('Pick a fruit')).toBeNull();
+  });
+
+  it('renderSelectedItem receives the current visible state', () => {
+    const fn = jest.fn((visible: boolean | undefined) => (
+      <Text>{visible ? 'OPEN' : 'CLOSED'}</Text>
+    ));
+    setup({ renderSelectedItem: fn });
+
+    expect(screen.getByText('CLOSED')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    expect(screen.getByText('OPEN')).toBeTruthy();
+  });
+
+  it('renderModalHeader renders above the list and receives a close() callback', () => {
+    const close = jest.fn();
+    setup({
+      renderModalHeader: (closeCb) => {
+        close.mockImplementation(closeCb);
+        return (
+          <Text testID="modal-header" onPress={() => closeCb()}>
+            HEADER
+          </Text>
+        );
+      },
+    });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    expect(screen.getByTestId('modal-header')).toBeTruthy();
+
+    // Tapping the header fires close() which should dismiss the list.
+    fireEvent.press(screen.getByTestId('modal-header'));
+    expect(screen.queryByTestId('modal-header')).toBeNull();
+  });
+
+  it('onEndReached + onEndReachedThreshold are forwarded to the FlatList', () => {
+    const onEndReached = jest.fn();
+    setup({ onEndReached, onEndReachedThreshold: 0.25 });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    const list = screen.getByTestId('dropdown flatlist');
+    expect(list.props.onEndReached).toBe(onEndReached);
+    expect(list.props.onEndReachedThreshold).toBe(0.25);
+  });
+});
+
+describe('Dropdown — regressions', () => {
+  it('does not mutate items passed in `data` (no magical `_index` property)', () => {
+    // Previous bug: `_renderItem` called `_assign(item, { _index: index })`,
+    // which silently mutated the consumer's data — frozen items would
+    // throw, Redux slices would warn.
+    const frozen = Object.freeze([
+      Object.freeze({ label: 'Apple', value: 'apple' }),
+      Object.freeze({ label: 'Banana', value: 'banana' }),
+    ]);
+
+    expect(() =>
+      render(
+        <Dropdown
+          testID="dropdown"
+          data={frozen as any}
+          labelField="label"
+          valueField="value"
+          onChange={jest.fn()}
+        />
+      )
+    ).not.toThrow();
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    for (const item of frozen) {
+      expect(item).not.toHaveProperty('_index');
+    }
+  });
+});

@@ -501,3 +501,274 @@ describe('MultiSelect — sections', () => {
     expect(screen.getByText('• Citrus')).toBeTruthy();
   });
 });
+
+describe('MultiSelect — behaviour coverage', () => {
+  it('persistSearch keeps the search text across close/reopen', () => {
+    setup({ search: true, persistSearch: true, value: [] });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    fireEvent.changeText(screen.getByTestId('multiselect input'), 'cherry');
+    fireEvent.press(screen.getByTestId('multiselect'));
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    expect(screen.getByTestId('multiselect input').props.value).toBe('cherry');
+  });
+
+  it('default behaviour clears the search text on close', () => {
+    setup({ search: true, value: [] });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    fireEvent.changeText(screen.getByTestId('multiselect input'), 'cherry');
+    fireEvent.press(screen.getByTestId('multiselect'));
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    expect(screen.getByTestId('multiselect input').props.value).toBe('');
+  });
+
+  it('hideSelectedFromList hides selected items from the list rows', () => {
+    // By default the chip row only renders while the list is CLOSED
+    // (see `alwaysRenderSelectedItem`). We open with `alwaysRender…`
+    // so the chip stays visible alongside the filtered list — that
+    // way we can assert both halves in a single open state.
+    setup({
+      value: ['banana'],
+      hideSelectedFromList: true,
+      alwaysRenderSelectedItem: true,
+    });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    // Chip is still visible (via alwaysRenderSelectedItem).
+    expect(screen.getByText('Banana')).toBeTruthy();
+
+    // But the list row isn't. Apple and Cherry still render.
+    expect(screen.getByText('Apple')).toBeTruthy();
+    expect(screen.getByText('Cherry')).toBeTruthy();
+
+    // There should be exactly one "Banana" text — the chip, not a
+    // list row.
+    const bananas = screen.getAllByText('Banana');
+    expect(bananas).toHaveLength(1);
+  });
+
+  it('activeItemTextStyle is applied only to the selected rows', () => {
+    setup({
+      value: ['apple'],
+      activeItemTextStyle: { color: 'orange' },
+    });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    const flattenStyle = (node: any) =>
+      Array.isArray(node.props.style)
+        ? Object.assign({}, ...node.props.style.filter(Boolean))
+        : node.props.style;
+
+    const apples = screen.getAllByText('Apple');
+    const appleInList = apples[apples.length - 1]!;
+    expect(flattenStyle(appleInList).color).toBe('orange');
+
+    const banana = screen.getByText('Banana');
+    expect(flattenStyle(banana).color).not.toBe('orange');
+  });
+
+  it('searchKeyboardType lands on the underlying TextInput', () => {
+    setup({ search: true, searchKeyboardType: 'numeric', value: [] });
+    fireEvent.press(screen.getByTestId('multiselect'));
+    expect(screen.getByTestId('multiselect input').props.keyboardType).toBe(
+      'numeric'
+    );
+  });
+
+  it('searchInputProps are spread onto the underlying TextInput', () => {
+    setup({
+      search: true,
+      value: [],
+      searchInputProps: {
+        autoCapitalize: 'words',
+        returnKeyType: 'done',
+      },
+    });
+    fireEvent.press(screen.getByTestId('multiselect'));
+    const input = screen.getByTestId('multiselect input');
+    expect(input.props.autoCapitalize).toBe('words');
+    expect(input.props.returnKeyType).toBe('done');
+  });
+
+  it('renderModalHeader renders inside the modal and receives close()', () => {
+    setup({
+      value: [],
+      renderModalHeader: (close) => (
+        <Text testID="ms-modal-header" onPress={close}>
+          HEADER
+        </Text>
+      ),
+    });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    expect(screen.getByTestId('ms-modal-header')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('ms-modal-header'));
+    expect(screen.queryByTestId('ms-modal-header')).toBeNull();
+  });
+
+  it('onEndReached + onEndReachedThreshold are forwarded to the FlatList', () => {
+    const onEndReached = jest.fn();
+    setup({
+      onEndReached,
+      onEndReachedThreshold: 0.1,
+      value: [],
+    });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    const list = screen.getByTestId('multiselect flatlist');
+    expect(list.props.onEndReached).toBe(onEndReached);
+    expect(list.props.onEndReachedThreshold).toBe(0.1);
+  });
+
+  it('closeModalWhenSelectedItem=true closes the list after each toggle', () => {
+    const Harness = () => {
+      const [value, setValue] = React.useState<string[]>([]);
+      return (
+        <MultiSelect
+          testID="multiselect"
+          data={data}
+          labelField="label"
+          valueField="value"
+          value={value}
+          onChange={setValue}
+          closeModalWhenSelectedItem
+        />
+      );
+    };
+    render(<Harness />);
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    expect(screen.getByTestId('multiselect flatlist')).toBeTruthy();
+
+    fireEvent.press(screen.getByText('Apple'));
+    // List is dismissed.
+    expect(screen.queryByTestId('multiselect flatlist')).toBeNull();
+  });
+
+  it('selectedToTop pushes selected items to the top of the list', () => {
+    // Each list row gets `testID = item[labelField]` by default
+    // (Apple, Banana, Cherry). Query them all, read the DOM order
+    // through `findAllByTestId`, then compare positions.
+    const Harness = () => {
+      const [value, setValue] = React.useState<string[]>([]);
+      return (
+        <MultiSelect
+          testID="multiselect"
+          data={data}
+          labelField="label"
+          valueField="value"
+          value={value}
+          onChange={setValue}
+          selectedToTop
+        />
+      );
+    };
+    render(<Harness />);
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    fireEvent.press(screen.getByText('Cherry'));
+
+    // Close and reopen so the re-sorted listData flushes through.
+    fireEvent.press(screen.getByTestId('multiselect'));
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    const apple = screen.getByTestId('Apple');
+    const banana = screen.getByTestId('Banana');
+    const cherry = screen.getByTestId('Cherry');
+
+    // Verify Cherry sits before Apple / Banana by comparing rendered
+    // depth-first order via a shared parent walk.
+    const order = (() => {
+      const seen: string[] = [];
+      const walk = (node: any) => {
+        if (!node) return;
+        if (node.props && node.props.testID) seen.push(node.props.testID);
+        if (Array.isArray(node.children)) node.children.forEach(walk);
+      };
+      walk(screen.toJSON());
+      return seen;
+    })();
+
+    const idx = (label: string) => order.findIndex((r) => r === label);
+    expect(idx('Cherry')).toBeGreaterThan(-1);
+    expect(idx('Cherry')).toBeLessThan(idx('Apple'));
+    expect(idx('Cherry')).toBeLessThan(idx('Banana'));
+
+    // Sanity: all three are present in the tree.
+    expect(apple).toBeTruthy();
+    expect(banana).toBeTruthy();
+    expect(cherry).toBeTruthy();
+  });
+});
+
+describe('MultiSelect — regressions', () => {
+  // Guardrails for bugs fixed during the Apr 2026 refactor; each one
+  // existed in the code for years because nothing caught them.
+
+  it('renders no chips when value is undefined (not "render every item")', () => {
+    // Previous bug: `_renderItemSelected` filtered with
+    //   const check = value?.indexOf(...)
+    //   if (check !== -1) return e
+    // When `value` was undefined, `check` was undefined, `!== -1` was
+    // true, and the trigger row rendered every item as a chip.
+    setup({ value: undefined });
+
+    // `Apple`, `Banana`, `Cherry` should NOT appear in the chip row
+    // while the list is closed. The trigger shows just the
+    // placeholder.
+    expect(screen.queryByText('Apple')).toBeNull();
+    expect(screen.queryByText('Banana')).toBeNull();
+    expect(screen.queryByText('Cherry')).toBeNull();
+    expect(screen.getByText('Pick fruits')).toBeTruthy();
+  });
+
+  it('renders no chips when value is an empty array', () => {
+    setup({ value: [] });
+    expect(screen.queryByText('Apple')).toBeNull();
+    expect(screen.queryByText('Banana')).toBeNull();
+    expect(screen.queryByText('Cherry')).toBeNull();
+  });
+
+  it('only renders chips for the items actually in the value array', () => {
+    setup({ value: ['banana'] });
+    expect(screen.getAllByText('Banana').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Apple')).toBeNull();
+    expect(screen.queryByText('Cherry')).toBeNull();
+  });
+
+  it('does not mutate items passed in `data` (no magical `_index` property)', () => {
+    // Previous bug: `_renderItem` called
+    //   _assign(item, { _index: index })
+    // which mutated the consumer's data. Frozen items would throw.
+    const frozen = Object.freeze([
+      Object.freeze({ label: 'Apple', value: 'apple' }),
+      Object.freeze({ label: 'Banana', value: 'banana' }),
+    ]);
+
+    expect(() =>
+      render(
+        <MultiSelect
+          testID="multiselect"
+          data={frozen as any}
+          labelField="label"
+          valueField="value"
+          value={[]}
+          onChange={jest.fn()}
+        />
+      )
+    ).not.toThrow();
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    // Items remain free of the removed sentinel.
+    for (const item of frozen) {
+      expect(item).not.toHaveProperty('_index');
+    }
+  });
+});
