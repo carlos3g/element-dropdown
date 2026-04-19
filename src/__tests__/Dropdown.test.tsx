@@ -82,6 +82,20 @@ describe('Dropdown', () => {
     expect(screen.queryByText('Cherry')).toBeNull();
   });
 
+  it('announces itself as a combobox to assistive tech', () => {
+    const { root } = setup({ accessibilityLabel: 'Fruit selector' });
+
+    const trigger = screen.getByLabelText('Fruit selector');
+    expect(trigger.props.accessibilityRole).toBe('combobox');
+    expect(trigger.props.accessibilityState).toEqual({
+      expanded: false,
+      disabled: false,
+    });
+
+    // Avoid unused var warning while keeping the render handle nominal
+    expect(root).toBeTruthy();
+  });
+
   it('exposes open() and close() through the imperative ref', () => {
     const ref = React.createRef<IDropdownRef>();
     render(

@@ -447,6 +447,8 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
           testID={testID}
           accessible={!!accessibilityLabel}
           accessibilityLabel={accessibilityLabel}
+          accessibilityRole="combobox"
+          accessibilityState={{ expanded: visible, disabled: disable }}
           onPress={showOrClose}
         >
           <View style={styles.dropdown}>
@@ -608,7 +610,10 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               data={listData}
               inverted={isTopPosition ? inverted : false}
               renderItem={_renderItem}
-              keyExtractor={(_item, index) => index.toString()}
+              keyExtractor={(item, index) => {
+                const key = _get(item, valueField);
+                return key != null ? String(key) : index.toString();
+              }}
               showsVerticalScrollIndicator={showsVerticalScrollIndicator}
             />
           );
@@ -634,6 +639,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         scrollIndex,
         showsVerticalScrollIndicator,
         testID,
+        valueField,
       ]
     );
 
