@@ -1,6 +1,7 @@
 import React, { useImperativeHandle, useMemo, useRef } from 'react';
 import { Image, Text, View } from 'react-native';
 import Dropdown from '../Dropdown';
+import type { IDropdownRef } from '../Dropdown/model';
 import { ISelectCountryRef, SelectCountryProps } from './model';
 import { styles } from './styles';
 
@@ -18,18 +19,18 @@ const SelectCountryComponent = React.forwardRef<
     imageStyle,
     selectedImageStyle,
   } = props;
-  const ref: any = useRef(null);
+  const ref = useRef<IDropdownRef>(null);
 
   useImperativeHandle(currentRef, () => {
     return { open: eventOpen, close: eventClose };
   });
 
   const eventOpen = () => {
-    ref.current.open();
+    ref.current?.open();
   };
 
   const eventClose = () => {
-    ref.current.close();
+    ref.current?.close();
   };
 
   const _renderItem = (item: any) => {
@@ -55,16 +56,19 @@ const SelectCountryComponent = React.forwardRef<
       {...props}
       renderItem={_renderItem}
       renderLeftIcon={() => {
-        if (selectItem?.image) {
+        // The previous implementation read `selectItem.image` directly,
+        // which silently broke whenever `imageField` was anything other
+        // than "image". Honor the user's field choice.
+        const source = selectItem && selectItem[imageField];
+        if (source) {
           return (
             <Image
-              source={selectItem.image}
+              source={source}
               style={[styles.image, imageStyle, selectedImageStyle]}
             />
           );
-        } else {
-          return null;
         }
+        return null;
       }}
     />
   );

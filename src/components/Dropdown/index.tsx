@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import _assign from 'lodash/assign';
 import _differenceWith from 'lodash/differenceWith';
 import _findIndex from 'lodash/findIndex';
 import _get from 'lodash/get';
@@ -14,15 +13,11 @@ import React, {
   useState,
 } from 'react';
 import {
-  Dimensions,
   FlatList,
-  I18nManager,
   Image,
   Keyboard,
-  KeyboardEvent,
   Modal,
   SectionList,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -30,27 +25,22 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { useDetectDevice } from '../../toolkits';
-import { useDeviceOrientation } from '../../useDeviceOrientation';
-import CInput from '../TextInput';
+import {
+  createKeyExtractor,
+  createSearchPredicate,
+  defaultChevronIcon,
+  DropdownSearchInput,
+  DropdownSectionHeader,
+  EMPTY_DATA,
+  styleContainerVertical,
+  useKeyboardTracking,
+  useTriggerMeasurement,
+} from '../../internal';
 import { DropdownProps, IDropdownRef, Section } from './model';
 import { styles } from './styles';
 
-const { isTablet } = useDetectDevice;
-const ic_down = require('../../assets/down.png');
-
-const statusBarHeight: number = StatusBar.currentHeight || 0;
-
-// Stable empty array used when neither `data` nor `sections` is
-// provided. Inlining `= []` in destructure creates a fresh
-// reference on every render, which cascades into useMemo
-// recomputation and infinite useEffect loops through getValue /
-// excludeData.
-const EMPTY_DATA: any[] = [];
-
 const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
   (props, currentRef) => {
-    const orientation = useDeviceOrientation();
     const {
       testID,
       itemTestIDField,
@@ -131,30 +121,30 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       () =>
         usingSections
           ? sections!.flatMap((s) => s.data)
-          : (dataProp ?? EMPTY_DATA),
+          : ((dataProp ?? EMPTY_DATA) as any[]),
       [usingSections, sections, dataProp]
     );
 
-    const ref = useRef<View>(null);
-    const refList = useRef<FlatList>(null);
-    const refSectionList = useRef<SectionList>(null);
     const [visible, setVisible] = useState<boolean>(false);
     const [currentValue, setCurrentValue] = useState<any>(null);
     const [listData, setListData] = useState<any[]>(data);
     const [listSections, setListSections] = useState<Section<any>[]>(
       sections ?? []
     );
-    const [position, setPosition] = useState<any>();
-    const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
     const [searchText, setSearchText] = useState('');
 
-    const { width: W, height: H } = Dimensions.get('window');
-    const styleContainerVertical: ViewStyle = useMemo(() => {
-      return {
-        backgroundColor: 'rgba(0,0,0,0.1)',
-        alignItems: 'center',
-      };
-    }, []);
+    const refList = useRef<FlatList>(null);
+    const refSectionList = useRef<SectionList>(null);
+
+    const {
+      ref,
+      position,
+      measure: _measure,
+      windowWidth: W,
+      windowHeight: H,
+      orientation,
+    } = useTriggerMeasurement(mode, isInsideModal, visible);
+
     const styleHorizontal: ViewStyle = useMemo(() => {
       return {
         width: orientation === 'LANDSCAPE' ? W / 2 : '100%',
@@ -246,92 +236,14 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       }
     }, [disable, onBlur]);
 
-    // Drop the cached measurement whenever the dropdown closes, so the next
-    // open waits for a fresh `measureInWindow` before mounting the Modal.
-    // Without this, reopening paints one frame at the previous position
-    // (upstream #198, #330, #298).
-    useEffect(() => {
-      if (!visible) {
-        setPosition(undefined);
-      }
-    }, [visible]);
-
-    const font = useCallback(() => {
-      if (fontFamily) {
-        return {
-          fontFamily: fontFamily,
-        };
-      } else {
-        return {};
-      }
-    }, [fontFamily]);
-
-    const _measure = useCallback(() => {
-      if (ref && ref?.current) {
-        ref.current.measureInWindow((pageX, pageY, width, height) => {
-          let isFull = isTablet
-            ? false
-            : mode === 'modal' || orientation === 'LANDSCAPE';
-
-          if (mode === 'auto') {
-            isFull = false;
-          }
-
-          const top = isFull ? 20 : height + pageY + 2;
-          const bottom = H - top + height;
-          const left = I18nManager.isRTL ? W - width - pageX : pageX;
-
-          // When nested inside an RN Modal, measureInWindow already
-          // reports coordinates relative to the Modal's own root, so
-          // adding the status-bar offset a second time pushes the list
-          // down by ~24–44 px. See upstream #362.
-          const statusOffset = isInsideModal ? 0 : statusBarHeight;
-
-          setPosition({
-            isFull,
-            width: Math.floor(width),
-            top: Math.floor(top + statusOffset),
-            bottom: Math.floor(bottom - statusOffset),
-            left: Math.floor(left),
-            height: Math.floor(height),
-          });
-        });
-      }
-    }, [H, W, orientation, mode, isInsideModal]);
-
-    const onKeyboardDidShow = useCallback(
-      (e: KeyboardEvent) => {
-        _measure();
-        setKeyboardHeight(e.endCoordinates.height);
-      },
-      [_measure]
+    const fontStyle = useMemo(
+      () => (fontFamily ? { fontFamily } : undefined),
+      [fontFamily]
     );
 
-    const onKeyboardDidHide = useCallback(() => {
-      setKeyboardHeight(0);
-      _measure();
-    }, [_measure]);
-
-    useEffect(() => {
-      const susbcriptionKeyboardDidShow = Keyboard.addListener(
-        'keyboardDidShow',
-        onKeyboardDidShow
-      );
-      const susbcriptionKeyboardDidHide = Keyboard.addListener(
-        'keyboardDidHide',
-        onKeyboardDidHide
-      );
-
-      return () => {
-        if (typeof susbcriptionKeyboardDidShow?.remove === 'function') {
-          susbcriptionKeyboardDidShow.remove();
-        }
-
-        if (typeof susbcriptionKeyboardDidHide?.remove === 'function') {
-          susbcriptionKeyboardDidHide.remove();
-        }
-      };
-    }, [onKeyboardDidHide, onKeyboardDidShow]);
+    // Re-measure whenever the keyboard shows or hides so the list
+    // re-positions itself above the keyboard.
+    const keyboardHeight = useKeyboardTracking(_measure);
 
     const getValue = useCallback(() => {
       const defaultValue =
@@ -446,69 +358,46 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
 
     const onSearch = useCallback(
       (text: string) => {
-        if (text.length > 0) {
-          const normalize = (raw: unknown) =>
-            String(raw ?? '')
-              .toLowerCase()
-              .replace(/\s/g, '')
-              .normalize('NFD')
-              .replace(/[\u0300-\u036f]/g, '');
-
-          const fields: any[] = Array.isArray(searchField)
-            ? searchField
-            : [searchField || labelField];
-
-          const key = normalize(text);
-
-          const defaultFilterFunction = (e: any) =>
-            fields.some((field) => normalize(_get(e, field)).indexOf(key) >= 0);
-
-          const propSearchFunction = (e: any) => {
-            const primary =
-              (Array.isArray(searchField) ? searchField[0] : searchField) ||
-              labelField;
-            const labelText = _get(e, primary as any);
-
-            return searchQuery?.(text, labelText);
-          };
-
-          const predicate = searchQuery
-            ? propSearchFunction
-            : defaultFilterFunction;
-
-          const applyExcludes = (items: any[]) => {
-            if (excludeSearchItems.length > 0 || excludeItems.length > 0) {
-              const excluded =
-                _differenceWith(
-                  items,
-                  excludeSearchItems,
-                  (obj1, obj2) =>
-                    _get(obj1, valueField) === _get(obj2, valueField)
-                ) || [];
-              return excludeData(excluded);
-            }
-            return items;
-          };
-
-          if (usingSections) {
-            const filtered = (sections ?? [])
-              .map((s) => ({
-                ...s,
-                data: applyExcludes(s.data.filter(predicate)),
-              }))
-              .filter((s) => s.data.length > 0);
-            setListSections(filtered);
-          } else {
-            const dataSearch = data.filter(predicate);
-            setListData(applyExcludes(dataSearch));
-          }
-        } else {
+        if (text.length === 0) {
+          // Empty query — reset to the unfiltered, exclude-aware view.
           if (usingSections) {
             setListSections(excludeSections(sections ?? []));
           } else {
-            const filterData = excludeData(data);
-            setListData(filterData);
+            setListData(excludeData(data));
           }
+          return;
+        }
+
+        const predicate = createSearchPredicate<any>({
+          text,
+          searchField,
+          labelField,
+          searchQuery,
+        });
+
+        const applyExcludes = (items: any[]) => {
+          if (excludeSearchItems.length === 0 && excludeItems.length === 0) {
+            return items;
+          }
+          const excluded =
+            _differenceWith(
+              items,
+              excludeSearchItems,
+              (obj1, obj2) => _get(obj1, valueField) === _get(obj2, valueField)
+            ) || [];
+          return excludeData(excluded);
+        };
+
+        if (usingSections) {
+          const filtered = (sections ?? [])
+            .map((s) => ({
+              ...s,
+              data: applyExcludes(s.data.filter(predicate)),
+            }))
+            .filter((s) => s.data.length > 0);
+          setListSections(filtered);
+        } else {
+          setListData(applyExcludes(data.filter(predicate)));
         }
       },
       [
@@ -580,7 +469,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 style={[
                   styles.textItem,
                   isSelected !== null ? selectedTextStyle : placeholderStyle,
-                  font(),
+                  fontStyle,
                 ]}
                 {...selectedTextProps}
               >
@@ -592,7 +481,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 renderRightIcon(visible)
               ) : (
                 <Image
-                  source={ic_down}
+                  source={defaultChevronIcon}
                   style={StyleSheet.flatten([
                     styles.icon,
                     { tintColor: iconColor },
@@ -613,7 +502,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         const itemDisabled = disabledField
           ? !!_get(item, disabledField)
           : false;
-        _assign(item, { _index: index });
         return (
           <TouchableHighlight
             key={index.toString()}
@@ -647,7 +535,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                     styles.textItem,
                     itemTextStyle,
                     selected && activeItemTextStyle,
-                    font(),
+                    fontStyle,
                   ])}
                 >
                   {_get(item, labelField)}
@@ -664,7 +552,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         allowFontScaling,
         currentValue,
         disabledField,
-        font,
+        fontStyle,
         itemAccessibilityLabelField,
         itemContainerStyle,
         itemTestIDField,
@@ -676,87 +564,77 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       ]
     );
 
-    const renderSearch = useCallback(() => {
-      if (search) {
-        if (renderInputSearch) {
-          return renderInputSearch((text) => {
-            if (onChangeText) {
-              setSearchText(text);
-              onChangeText(text);
-            }
-            onSearch(text);
-          });
-        } else {
-          return (
-            <CInput
-              autoCorrect={false}
-              {...searchInputProps}
-              testID={testID + ' input'}
-              accessibilityLabel={accessibilityLabel + ' input'}
-              allowFontScaling={allowFontScaling}
-              style={[styles.input, inputSearchStyle]}
-              inputStyle={[inputSearchStyle, font()]}
-              value={searchText}
-              keyboardType={searchKeyboardType}
-              placeholder={searchPlaceholder}
-              onChangeText={(e) => {
-                if (onChangeText) {
-                  setSearchText(e);
-                  onChangeText(e);
-                }
-                onSearch(e);
-              }}
-              placeholderTextColor={searchPlaceholderTextColor}
-              showIcon
-              iconStyle={[{ tintColor: iconColor }, iconStyle]}
-            />
-          );
-        }
-      }
-      return null;
-    }, [
-      accessibilityLabel,
-      allowFontScaling,
-      font,
-      iconColor,
-      iconStyle,
-      inputSearchStyle,
-      onChangeText,
-      onSearch,
-      renderInputSearch,
-      search,
-      searchInputProps,
-      searchKeyboardType,
-      searchPlaceholder,
-      searchPlaceholderTextColor,
-      testID,
-      searchText,
-    ]);
+    const onSearchTextChange = useCallback(
+      (text: string) => {
+        setSearchText(text);
+        if (onChangeText) onChangeText(text);
+        onSearch(text);
+      },
+      [onChangeText, onSearch]
+    );
+
+    const renderSearch = useCallback(
+      () => (
+        <DropdownSearchInput
+          search={search}
+          renderInputSearch={renderInputSearch}
+          value={searchText}
+          onChangeText={onSearchTextChange}
+          wrapperStyle={[styles.input, inputSearchStyle]}
+          textInputStyle={[inputSearchStyle, fontStyle]}
+          testID={testID}
+          accessibilityLabel={accessibilityLabel}
+          allowFontScaling={allowFontScaling}
+          placeholder={searchPlaceholder}
+          placeholderTextColor={searchPlaceholderTextColor}
+          keyboardType={searchKeyboardType}
+          searchInputProps={searchInputProps}
+          iconColor={iconColor}
+          iconStyle={iconStyle}
+        />
+      ),
+      [
+        accessibilityLabel,
+        allowFontScaling,
+        fontStyle,
+        iconColor,
+        iconStyle,
+        inputSearchStyle,
+        onSearchTextChange,
+        renderInputSearch,
+        search,
+        searchInputProps,
+        searchKeyboardType,
+        searchPlaceholder,
+        searchPlaceholderTextColor,
+        searchText,
+        testID,
+      ]
+    );
 
     const _renderSectionHeader = useCallback(
-      ({ section }: { section: any }) => {
-        const s = section as Section<any>;
-        if (renderSectionHeader) {
-          return renderSectionHeader(s);
-        }
-        return (
-          <View style={[styles.sectionHeader, sectionHeaderStyle]}>
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={[styles.sectionHeaderText, sectionHeaderTextStyle, font()]}
-            >
-              {s.title}
-            </Text>
-          </View>
-        );
-      },
+      ({ section }: { section: any }) => (
+        <DropdownSectionHeader
+          section={section}
+          renderSectionHeader={renderSectionHeader}
+          sectionHeaderStyle={sectionHeaderStyle}
+          sectionHeaderTextStyle={sectionHeaderTextStyle}
+          fontStyle={fontStyle}
+          allowFontScaling={allowFontScaling}
+        />
+      ),
       [
         renderSectionHeader,
         sectionHeaderStyle,
         sectionHeaderTextStyle,
+        fontStyle,
         allowFontScaling,
-        font,
       ]
+    );
+
+    const keyExtractor = useMemo(
+      () => createKeyExtractor(valueField),
+      [valueField]
     );
 
     const _renderList = useCallback(
@@ -779,10 +657,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                   _renderItem({ item, index: 0 }) as any
                 }
                 renderSectionHeader={_renderSectionHeader}
-                keyExtractor={(item, index) => {
-                  const key = _get(item, valueField);
-                  return key != null ? String(key) : index.toString();
-                }}
+                keyExtractor={keyExtractor}
                 stickySectionHeadersEnabled
                 showsVerticalScrollIndicator={showsVerticalScrollIndicator}
                 onEndReached={onEndReached}
@@ -804,10 +679,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               data={listData}
               inverted={isTopPosition ? inverted : false}
               renderItem={_renderItem}
-              keyExtractor={(item, index) => {
-                const key = _get(item, valueField);
-                return key != null ? String(key) : index.toString();
-              }}
+              keyExtractor={keyExtractor}
               showsVerticalScrollIndicator={showsVerticalScrollIndicator}
               onEndReached={onEndReached}
               onEndReachedThreshold={onEndReachedThreshold}
@@ -831,6 +703,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         autoScrollTarget,
         eventClose,
         flatListProps,
+        keyExtractor,
         listData,
         listSections,
         inverted,
@@ -842,7 +715,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         showsVerticalScrollIndicator,
         testID,
         usingSections,
-        valueField,
       ]
     );
 
@@ -874,8 +746,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               ? onAutoPosition()
               : dropdownPosition === 'top';
 
-          let keyboardStyle: ViewStyle = {};
-
           let extendHeight = !isTopPosition ? top : bottom;
           if (
             keyboardAvoiding &&
@@ -903,7 +773,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                     styles.flex1,
                     isFull && styleContainerVertical,
                     backgroundColor && { backgroundColor: backgroundColor },
-                    keyboardStyle,
                   ])}
                 >
                   <View
@@ -949,7 +818,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       dropdownPosition,
       keyboardAvoiding,
       showOrClose,
-      styleContainerVertical,
       backgroundColor,
       containerStyle,
       styleHorizontal,
