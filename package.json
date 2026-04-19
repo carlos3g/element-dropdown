@@ -33,7 +33,8 @@
     "prepack": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
-    "bootstrap": "yarn example install && yarn install"
+    "bootstrap": "yarn example install && yarn install",
+    "reassure": "reassure --testMatch \"**/__perf__/**/*.perf-test.(ts|tsx)\""
   },
   "packageManager": "yarn@4.14.1",
   "keywords": [
@@ -96,6 +97,7 @@
     "react-native": "^0.76.9",
     "react-native-builder-bob": "^0.32.0",
     "react-test-renderer": "^18.3.1",
+    "reassure": "^1.4.1",
     "release-it": "^20",
     "typescript": "~5.7.0"
   },
@@ -114,6 +116,9 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.(ts|tsx)"
     ]
   },
   "commitlint": {

@@ -3,10 +3,21 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@carlos3g/element-dropdown": ["../src/index"],
-      "@carlos3g/element-dropdown/*": ["../src/*"]
+      "@carlos3g/element-dropdown": [
+        "../src/index"
+      ],
+      "@carlos3g/element-dropdown/*": [
+        "../src/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
