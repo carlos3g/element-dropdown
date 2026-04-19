@@ -21,7 +21,7 @@ jobs:
       github.event.release.prerelease == false
     steps:
       - name: Checkout master
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: master
           token: ${{ secrets.GITHUB_TOKEN }}
