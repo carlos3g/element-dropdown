@@ -1,11 +1,12 @@
 import type React from 'react';
 import type {
+  FlatListProps,
+  ImageStyle,
+  Insets,
   StyleProp,
+  TextProps,
   TextStyle,
   ViewStyle,
-  TextProps,
-  ImageStyle,
-  FlatListProps,
 } from 'react-native';
 
 export type IDropdownRef = {
@@ -43,6 +44,8 @@ export interface DropdownProps<T> {
   searchField?: keyof T;
   disabledField?: keyof T;
   search?: boolean;
+  hitSlop?: Insets | number;
+  allowFontScaling?: boolean;
   searchPlaceholder?: string;
   searchPlaceholderTextColor?: string;
   disable?: boolean;

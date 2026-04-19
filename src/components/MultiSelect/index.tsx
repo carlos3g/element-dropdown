@@ -98,6 +98,8 @@ const MultiSelectComponent = React.forwardRef<
     mode = 'default',
     excludeItems = [],
     excludeSearchItems = [],
+    hitSlop,
+    allowFontScaling,
   } = props;
 
   const ref = useRef<View>(null);
@@ -418,11 +420,13 @@ const MultiSelectComponent = React.forwardRef<
         accessibilityLabel={accessibilityLabel}
         accessibilityRole="combobox"
         accessibilityState={{ expanded: visible, disabled: disable }}
+        hitSlop={hitSlop}
         onPress={showOrClose}
       >
         <View style={styles.dropdown}>
           {renderLeftIcon?.(visible)}
           <Text
+            allowFontScaling={allowFontScaling}
             style={StyleSheet.flatten([
               styles.textItem,
               value && value.length > 0 ? selectedTextStyle : placeholderStyle,
@@ -491,6 +495,7 @@ const MultiSelectComponent = React.forwardRef<
               renderItem(item, selected)
             ) : (
               <Text
+                allowFontScaling={allowFontScaling}
                 style={StyleSheet.flatten([
                   styles.textItem,
                   itemTextStyle,
@@ -507,6 +512,7 @@ const MultiSelectComponent = React.forwardRef<
     [
       accessibilityLabel,
       activeColor,
+      allowFontScaling,
       checkSelected,
       disabledField,
       font,
@@ -535,6 +541,7 @@ const MultiSelectComponent = React.forwardRef<
           <CInput
             testID={testID + ' input'}
             accessibilityLabel={accessibilityLabel + ' input'}
+            allowFontScaling={allowFontScaling}
             style={[styles.input, inputSearchStyle]}
             inputStyle={[inputSearchStyle, font()]}
             autoCorrect={false}
@@ -556,6 +563,7 @@ const MultiSelectComponent = React.forwardRef<
     return null;
   }, [
     accessibilityLabel,
+    allowFontScaling,
     font,
     iconColor,
     iconStyle,

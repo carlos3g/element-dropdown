@@ -95,6 +95,8 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       closeModalWhenSelectedItem = true,
       excludeItems = [],
       excludeSearchItems = [],
+      hitSlop,
+      allowFontScaling,
     } = props;
 
     const ref = useRef<View>(null);
@@ -451,11 +453,13 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
           accessibilityLabel={accessibilityLabel}
           accessibilityRole="combobox"
           accessibilityState={{ expanded: visible, disabled: disable }}
+          hitSlop={hitSlop}
           onPress={showOrClose}
         >
           <View style={styles.dropdown}>
             {renderLeftIcon?.(visible)}
             <Text
+              allowFontScaling={allowFontScaling}
               style={[
                 styles.textItem,
                 isSelected !== null ? selectedTextStyle : placeholderStyle,
@@ -520,6 +524,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 renderItem(item, selected)
               ) : (
                 <Text
+                  allowFontScaling={allowFontScaling}
                   style={StyleSheet.flatten([
                     styles.textItem,
                     itemTextStyle,
@@ -536,6 +541,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       [
         accessibilityLabel,
         activeColor,
+        allowFontScaling,
         currentValue,
         disabledField,
         font,
@@ -565,6 +571,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
             <CInput
               testID={testID + ' input'}
               accessibilityLabel={accessibilityLabel + ' input'}
+              allowFontScaling={allowFontScaling}
               style={[styles.input, inputSearchStyle]}
               inputStyle={[inputSearchStyle, font()]}
               value={searchText}
@@ -587,6 +594,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       return null;
     }, [
       accessibilityLabel,
+      allowFontScaling,
       font,
       iconColor,
       iconStyle,
