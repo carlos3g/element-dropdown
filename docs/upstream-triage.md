@@ -178,10 +178,17 @@ reference. Estimated ~1 week.
 Each its own PR with a recipe doc page. Estimated ~1 week if
 F3/#162 is dropped, ~2 weeks if kept.
 
+**v2.15.0 — sectioned lists (shipped):**
+`sections` prop on Dropdown and MultiSelect, backed by RN's
+`SectionList`, with sticky section headers, per-section search
+filtering, and `renderSectionHeader` / `sectionHeaderStyle` /
+`sectionHeaderTextStyle` customization. Closes upstream #165,
+#223 (group headers). See the
+[Sectioned lists recipe](https://carlos3g.github.io/element-dropdown/docs/guides/sectioned-lists).
+
 **v3.0 — bigger features (deferred):**
-Sectioned lists (#165), autocomplete / add-if-missing (#254),
-optional animation hooks (#319 reframed in Reanimated). Each its
-own minor release.
+Autocomplete / add-if-missing (#254), optional animation hooks
+(#319 reframed in Reanimated). Each its own minor release.
 
 **Continuous:** keep `compatibility.test.tsx` green; any breaking
 change flips us to a major and requires an entry in

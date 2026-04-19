@@ -54,11 +54,20 @@ time an item is toggled.
 
 | Prop | Type | Description |
 |---|---|---|
-| `data` | `T[]` | Array of items to render. |
+| `data` | `T[]` | Flat array of items. Pass `sections` instead for grouped rendering. |
 | `labelField` | `keyof T` | Field on each item used as the visible label. |
 | `valueField` | `keyof T` | Field on each item that identifies it uniquely. |
 | `value` | `string[] \| null` | Currently selected `valueField` values. |
 | `onChange` | `(value: string[]) => void` | Fires with the new selection array. |
+
+### Sections (optional — alternative to `data`)
+
+| Prop | Type | Description |
+|---|---|---|
+| `sections` | `{ title: string; data: T[] }[]` | Groups of items rendered under section headers. When provided, `data` is ignored. See [Sectioned lists](../guides/sectioned-lists). |
+| `renderSectionHeader` | `(section) => ReactElement \| null` | Fully custom header renderer. |
+| `sectionHeaderStyle` | `ViewStyle` | Style for the default header container. |
+| `sectionHeaderTextStyle` | `TextStyle` | Style for the default header `<Text>`. |
 
 ### Display
 
@@ -181,6 +190,7 @@ Dropdown API.
 
 - [Custom search field](../guides/custom-search-field)
 - [Search input passthrough](../guides/search-input-props)
+- [Sectioned lists](../guides/sectioned-lists)
 - [Selected-item ordering](../guides/selected-ordering)
 - [Pagination with `onEndReached`](../guides/end-reached-pagination)
 - [Modal header](../guides/modal-header)

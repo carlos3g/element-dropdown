@@ -49,10 +49,19 @@ export function FruitPicker() {
 
 | Prop | Type | Description |
 |---|---|---|
-| `data` | `T[]` | Array of items to render. |
+| `data` | `T[]` | Flat array of items. Pass `sections` instead for grouped rendering. |
 | `labelField` | `keyof T` | Field on each item to use as the visible label. |
 | `valueField` | `keyof T` | Field on each item that identifies it uniquely. |
 | `onChange` | `(item: T) => void` | Fires with the selected item when the user picks from the list. |
+
+### Sections (optional — alternative to `data`)
+
+| Prop | Type | Description |
+|---|---|---|
+| `sections` | `{ title: string; data: T[] }[]` | Groups of items rendered under section headers. When provided, `data` is ignored. See [Sectioned lists](../guides/sectioned-lists). |
+| `renderSectionHeader` | `(section) => ReactElement \| null` | Fully custom header renderer. |
+| `sectionHeaderStyle` | `ViewStyle` | Style for the default header container. |
+| `sectionHeaderTextStyle` | `TextStyle` | Style for the default header `<Text>`. |
 
 ### Value and display
 
@@ -184,6 +193,7 @@ See [Open and close programmatically](../guides/imperative-open-close).
 - [Custom search field](../guides/custom-search-field)
 - [Custom search matcher](../guides/custom-search-matcher)
 - [Search input passthrough](../guides/search-input-props)
+- [Sectioned lists](../guides/sectioned-lists)
 - [Pagination with `onEndReached`](../guides/end-reached-pagination)
 - [Custom trigger](../guides/custom-trigger)
 - [Modal header](../guides/modal-header)
