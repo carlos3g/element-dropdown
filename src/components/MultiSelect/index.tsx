@@ -448,7 +448,6 @@ const MultiSelectComponent = React.forwardRef<
     return (
       <TouchableWithoutFeedback
         testID={testID}
-        accessible={!!accessibilityLabel}
         accessibilityLabel={accessibilityLabel}
         accessibilityRole="combobox"
         accessibilityState={{ expanded: visible, disabled: disable }}
@@ -498,7 +497,6 @@ const MultiSelectComponent = React.forwardRef<
         <TouchableHighlight
           key={index.toString()}
           testID={_get(item, itemTestIDField || labelField)}
-          accessible={!!accessibilityLabel}
           accessibilityLabel={_get(
             item,
             itemAccessibilityLabelField || labelField
@@ -539,7 +537,6 @@ const MultiSelectComponent = React.forwardRef<
       );
     },
     [
-      accessibilityLabel,
       activeColor,
       activeItemTextStyle,
       allowFontScaling,
@@ -826,7 +823,6 @@ const MultiSelectComponent = React.forwardRef<
             return (
               <TouchableWithoutFeedback
                 testID={_get(e, itemTestIDField || labelField)}
-                accessible={!!accessibilityLabel}
                 accessibilityLabel={_get(
                   e,
                   itemAccessibilityLabelField || labelField
@@ -843,7 +839,6 @@ const MultiSelectComponent = React.forwardRef<
             return (
               <TouchableWithoutFeedback
                 testID={_get(e, itemTestIDField || labelField)}
-                accessible={!!accessibilityLabel}
                 accessibilityLabel={_get(
                   e,
                   itemAccessibilityLabelField || labelField
@@ -901,7 +896,6 @@ const MultiSelectComponent = React.forwardRef<
     return (
       <TouchableWithoutFeedback
         testID={testID}
-        accessible={!!accessibilityLabel}
         accessibilityLabel={accessibilityLabel}
         accessibilityRole="combobox"
         accessibilityState={{ expanded: visible, disabled: disable }}

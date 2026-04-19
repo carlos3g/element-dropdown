@@ -720,3 +720,29 @@ describe('Dropdown — regressions', () => {
     }
   });
 });
+
+describe('Dropdown — a11y defaults', () => {
+  it('marks the trigger accessible even without accessibilityLabel', () => {
+    // Previously `accessible={!!accessibilityLabel}` meant that if the
+    // consumer didn't pass `accessibilityLabel`, the trigger was
+    // explicitly set to `accessible={false}` and screen readers
+    // skipped it entirely.
+    setup(); // no accessibilityLabel
+    const trigger = screen.getByTestId('dropdown');
+    // `accessible` is now unset → TouchableWithoutFeedback defaults to
+    // true, which renders undefined (RN treats undefined == default).
+    expect(trigger.props.accessible).not.toBe(false);
+  });
+
+  it('marks list items accessible even without accessibilityLabel', () => {
+    setup(); // no accessibilityLabel
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    // Each row is a TouchableHighlight with its own accessibilityLabel
+    // derived from the item's labelField. It should be accessible
+    // regardless of whether the dropdown-level prop is set.
+    const appleRow = screen.getByTestId('Apple');
+    expect(appleRow.props.accessible).not.toBe(false);
+    expect(appleRow.props.accessibilityLabel).toBe('Apple');
+  });
+});

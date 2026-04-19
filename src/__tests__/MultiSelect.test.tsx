@@ -800,3 +800,27 @@ describe('MultiSelect — inside mode', () => {
     expect(label.props.numberOfLines).toBe(2);
   });
 });
+
+describe('MultiSelect — a11y defaults', () => {
+  it('marks the trigger accessible even without accessibilityLabel', () => {
+    setup(); // no accessibilityLabel
+    const trigger = screen.getByTestId('multiselect');
+    expect(trigger.props.accessible).not.toBe(false);
+  });
+
+  it('marks list items accessible even without accessibilityLabel', () => {
+    setup();
+    fireEvent.press(screen.getByTestId('multiselect'));
+    const apple = screen.getByTestId('Apple');
+    expect(apple.props.accessible).not.toBe(false);
+    expect(apple.props.accessibilityLabel).toBe('Apple');
+  });
+
+  it('marks chips accessible even without accessibilityLabel', () => {
+    setup({ value: ['apple'] });
+    // Chip row is rendered below the closed trigger.
+    const chip = screen.getByTestId('Apple');
+    expect(chip.props.accessible).not.toBe(false);
+    expect(chip.props.accessibilityLabel).toBe('Apple');
+  });
+});

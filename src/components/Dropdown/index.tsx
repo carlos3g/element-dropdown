@@ -451,7 +451,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       return (
         <TouchableWithoutFeedback
           testID={testID}
-          accessible={!!accessibilityLabel}
           accessibilityLabel={accessibilityLabel}
           accessibilityRole="combobox"
           accessibilityState={{ expanded: visible, disabled: disable }}
@@ -511,7 +510,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
           <TouchableHighlight
             key={index.toString()}
             testID={_get(item, itemTestIDField || labelField)}
-            accessible={!!accessibilityLabel}
             accessibilityLabel={_get(
               item,
               itemAccessibilityLabelField || labelField
@@ -551,7 +549,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         );
       },
       [
-        accessibilityLabel,
         activeColor,
         activeItemTextStyle,
         allowFontScaling,
