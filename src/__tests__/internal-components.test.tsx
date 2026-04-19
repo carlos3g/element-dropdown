@@ -201,6 +201,15 @@ describe('DropdownSectionHeader', () => {
     );
     expect(screen.getByText('Berries').props.allowFontScaling).toBe(false);
   });
+
+  it('announces the default header as an accessibility heading', () => {
+    const { UNSAFE_getByProps } = render(
+      <DropdownSectionHeader section={section} />
+    );
+    // VoiceOver / TalkBack's "next heading" gesture relies on
+    // accessibilityRole="header" being set on the header View.
+    expect(UNSAFE_getByProps({ accessibilityRole: 'header' })).toBeTruthy();
+  });
 });
 
 describe('CInput — controlled value sync', () => {

@@ -330,6 +330,12 @@ export interface MultiSelectProps<T> {
 
   /** Label for the trigger; also propagated to the search and list. */
   accessibilityLabel?: string;
+  /**
+   * Hint for the trigger, announced after the label and role. Also
+   * surfaced by VoiceOver / TalkBack. Example: "Opens a list of
+   * fruits".
+   */
+  accessibilityHint?: string;
   /** Field on each item used for its `accessibilityLabel`. @default labelField */
   itemAccessibilityLabelField?: string;
   /** `testID` for the trigger; propagated to the search and list. */

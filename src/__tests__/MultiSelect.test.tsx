@@ -823,4 +823,31 @@ describe('MultiSelect — a11y defaults', () => {
     expect(chip.props.accessible).not.toBe(false);
     expect(chip.props.accessibilityLabel).toBe('Apple');
   });
+
+  it('sets accessibilityRole="button" on list items', () => {
+    setup();
+    fireEvent.press(screen.getByTestId('multiselect'));
+    expect(screen.getByTestId('Apple').props.accessibilityRole).toBe('button');
+  });
+
+  it('sets accessibilityRole="button" and hint on chips', () => {
+    setup({ value: ['apple'] });
+    const chip = screen.getByTestId('Apple');
+    expect(chip.props.accessibilityRole).toBe('button');
+    expect(chip.props.accessibilityHint).toMatch(/remove/i);
+  });
+
+  it('forwards accessibilityHint to the trigger', () => {
+    setup({ accessibilityHint: 'Opens fruit picker' });
+    expect(screen.getByTestId('multiselect').props.accessibilityHint).toBe(
+      'Opens fruit picker'
+    );
+  });
+
+  it('forwards accessibilityHint to the trigger in inside mode', () => {
+    setup({ inside: true, accessibilityHint: 'Opens fruit picker' });
+    expect(screen.getByTestId('multiselect').props.accessibilityHint).toBe(
+      'Opens fruit picker'
+    );
+  });
 });

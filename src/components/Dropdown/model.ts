@@ -397,6 +397,11 @@ export interface DropdownProps<T> {
    */
   accessibilityLabel?: string;
   /**
+   * Hint for the trigger, announced by screen readers after the label
+   * and role — e.g. "Opens a list of fruits". Not set by default.
+   */
+  accessibilityHint?: string;
+  /**
    * Field on each item used for its `accessibilityLabel`.
    * @default labelField
    */

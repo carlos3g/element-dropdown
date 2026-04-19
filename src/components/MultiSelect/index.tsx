@@ -100,6 +100,7 @@ const MultiSelectComponent = React.forwardRef<
     confirmUnSelectItem,
     onConfirmSelectItem,
     accessibilityLabel,
+    accessibilityHint,
     itemAccessibilityLabelField,
     visibleSelectedItem = true,
     mode = 'default',
@@ -449,6 +450,7 @@ const MultiSelectComponent = React.forwardRef<
       <TouchableWithoutFeedback
         testID={testID}
         accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
         accessibilityRole="combobox"
         accessibilityState={{ expanded: visible, disabled: disable }}
         hitSlop={hitSlop}
@@ -501,6 +503,7 @@ const MultiSelectComponent = React.forwardRef<
             item,
             itemAccessibilityLabelField || labelField
           )}
+          accessibilityRole="button"
           accessibilityState={{ selected, disabled: itemDisabled }}
           disabled={itemDisabled}
           underlayColor={activeColor}
@@ -739,6 +742,9 @@ const MultiSelectComponent = React.forwardRef<
           >
             <TouchableWithoutFeedback accessible={false} onPress={showOrClose}>
               <View
+                // Scope VoiceOver to the modal while it's open — see
+                // Dropdown for the same accessibilityViewIsModal note.
+                accessibilityViewIsModal
                 style={StyleSheet.flatten([
                   styles.flex1,
                   isFull && styleContainerVertical,
@@ -819,14 +825,14 @@ const MultiSelectComponent = React.forwardRef<
         ])}
       >
         {list.map((e) => {
+          const itemLabel = _get(e, itemAccessibilityLabelField || labelField);
           if (renderSelectedItem) {
             return (
               <TouchableWithoutFeedback
                 testID={_get(e, itemTestIDField || labelField)}
-                accessibilityLabel={_get(
-                  e,
-                  itemAccessibilityLabelField || labelField
-                )}
+                accessibilityLabel={itemLabel}
+                accessibilityRole="button"
+                accessibilityHint="Double tap to remove from selection"
                 key={_get(e, labelField)}
                 onPress={() => unSelect(e)}
               >
@@ -835,44 +841,44 @@ const MultiSelectComponent = React.forwardRef<
                 })}
               </TouchableWithoutFeedback>
             );
-          } else {
-            return (
-              <TouchableWithoutFeedback
-                testID={_get(e, itemTestIDField || labelField)}
-                accessibilityLabel={_get(
-                  e,
-                  itemAccessibilityLabelField || labelField
-                )}
-                key={_get(e, labelField)}
-                onPress={() => unSelect(e)}
+          }
+          return (
+            <TouchableWithoutFeedback
+              testID={_get(e, itemTestIDField || labelField)}
+              accessibilityLabel={itemLabel}
+              accessibilityRole="button"
+              accessibilityHint="Double tap to remove from selection"
+              key={_get(e, labelField)}
+              onPress={() => unSelect(e)}
+            >
+              <View
+                style={StyleSheet.flatten([styles.selectedItem, selectedStyle])}
               >
-                <View
+                <Text
                   style={StyleSheet.flatten([
-                    styles.selectedItem,
-                    selectedStyle,
+                    styles.selectedTextLeftItem,
+                    selectedTextStyle,
+                    fontStyle,
                   ])}
                 >
-                  <Text
-                    style={StyleSheet.flatten([
-                      styles.selectedTextLeftItem,
-                      selectedTextStyle,
-                      fontStyle,
-                    ])}
-                  >
-                    {_get(e, labelField)}
-                  </Text>
-                  <Text
-                    style={StyleSheet.flatten([
-                      styles.selectedTextItem,
-                      selectedTextStyle,
-                    ])}
-                  >
-                    ⓧ
-                  </Text>
-                </View>
-              </TouchableWithoutFeedback>
-            );
-          }
+                  {itemLabel}
+                </Text>
+                <Text
+                  // Decorative × glyph; screen readers already announce
+                  // the chip as a button that removes the item, so the
+                  // glyph being read as "circled x" would just be noise.
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                  style={StyleSheet.flatten([
+                    styles.selectedTextItem,
+                    selectedTextStyle,
+                  ])}
+                >
+                  ⓧ
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+          );
         })}
       </View>
     );
@@ -897,6 +903,7 @@ const MultiSelectComponent = React.forwardRef<
       <TouchableWithoutFeedback
         testID={testID}
         accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
         accessibilityRole="combobox"
         accessibilityState={{ expanded: visible, disabled: disable }}
         hitSlop={hitSlop}

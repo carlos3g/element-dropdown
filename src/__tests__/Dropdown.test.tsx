@@ -745,4 +745,24 @@ describe('Dropdown — a11y defaults', () => {
     expect(appleRow.props.accessible).not.toBe(false);
     expect(appleRow.props.accessibilityLabel).toBe('Apple');
   });
+
+  it('sets accessibilityRole="button" on list items', () => {
+    setup();
+    fireEvent.press(screen.getByTestId('dropdown'));
+    expect(screen.getByTestId('Apple').props.accessibilityRole).toBe('button');
+  });
+
+  it('forwards accessibilityHint to the trigger', () => {
+    setup({ accessibilityHint: 'Opens fruit picker' });
+    expect(screen.getByTestId('dropdown').props.accessibilityHint).toBe(
+      'Opens fruit picker'
+    );
+  });
+
+  it('marks the open modal with accessibilityViewIsModal', () => {
+    const { UNSAFE_getByProps } = setup();
+    fireEvent.press(screen.getByTestId('dropdown'));
+    // Scopes VoiceOver focus to the dropdown modal while open.
+    expect(UNSAFE_getByProps({ accessibilityViewIsModal: true })).toBeTruthy();
+  });
 });

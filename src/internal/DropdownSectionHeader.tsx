@@ -45,7 +45,13 @@ export function DropdownSectionHeader({
     return renderSectionHeader(section);
   }
   return (
-    <View style={[defaultStyles.header, sectionHeaderStyle]}>
+    <View
+      // `role="header"` lets VoiceOver / TalkBack surface the section
+      // title via the "next heading" navigation gesture, which is the
+      // primary way screen-reader users skim a grouped list.
+      accessibilityRole="header"
+      style={[defaultStyles.header, sectionHeaderStyle]}
+    >
       <Text
         allowFontScaling={allowFontScaling}
         style={[defaultStyles.headerText, sectionHeaderTextStyle, fontStyle]}

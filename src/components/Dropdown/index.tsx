@@ -98,6 +98,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       confirmSelectItem,
       onConfirmSelectItem,
       accessibilityLabel,
+      accessibilityHint,
       itemAccessibilityLabelField,
       mode = 'default',
       closeModalWhenSelectedItem = true,
@@ -452,6 +453,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         <TouchableWithoutFeedback
           testID={testID}
           accessibilityLabel={accessibilityLabel}
+          accessibilityHint={accessibilityHint}
           accessibilityRole="combobox"
           accessibilityState={{ expanded: visible, disabled: disable }}
           hitSlop={hitSlop}
@@ -514,6 +516,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               item,
               itemAccessibilityLabelField || labelField
             )}
+            accessibilityRole="button"
             accessibilityState={{ selected, disabled: itemDisabled }}
             disabled={itemDisabled}
             underlayColor={activeColor}
@@ -770,6 +773,10 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 onPress={showOrClose}
               >
                 <View
+                  // Scope VoiceOver to the modal while it's open — stops
+                  // focus escaping to whatever renders behind us on iOS
+                  // (and Android equivalents treat this as a no-op).
+                  accessibilityViewIsModal
                   style={StyleSheet.flatten([
                     styles.flex1,
                     isFull && styleContainerVertical,
