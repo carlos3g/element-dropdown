@@ -9,4 +9,5 @@ export type ISelectCountryRef = {
 export interface SelectCountryProps<T> extends DropdownProps<T> {
   imageField: string;
   imageStyle?: ImageStyle;
+  selectedImageStyle?: ImageStyle;
 }
