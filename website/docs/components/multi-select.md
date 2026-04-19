@@ -100,20 +100,29 @@ time an item is toggled.
 |---|---|---|---|
 | `itemContainerStyle` | `ViewStyle` | — | Style merged on top of the built-in row style. |
 | `itemTextStyle` | `TextStyle` | — | Style for the default item label. |
+| `activeItemTextStyle` | `TextStyle` | — | Extra text style applied only to selected rows. |
 | `activeColor` | `string` | `'#F6F7F8'` | Background of the row for already-selected items. |
 | `renderItem` | `(item: T, selected?: boolean) => ReactElement` | — | Fully custom row renderer. |
 | `disabledField` | `keyof T` | — | Marks individual items as non-interactive. |
+| `hideSelectedFromList` | `boolean` | `false` | Hide already-selected items from the rendered list. |
+| `selectedToTop` | `boolean` | `false` | Sort selected items to the top of the list (no-op when `hideSelectedFromList` is `true`). See [Selected-item ordering](../guides/selected-ordering). |
 
 ### Search
 
-Same props as Dropdown: `search`, `searchField`, `searchQuery`,
+Same props as [Dropdown](./dropdown#search): `search`, `searchField`
+(supports `keyof T` or `(keyof T)[]`), `searchQuery`,
+`searchKeyboardType`, `searchInputProps`, `persistSearch`,
 `inputSearchStyle`, `searchPlaceholder`,
 `searchPlaceholderTextColor`, `renderInputSearch`, `onChangeText`.
 
-### Icons
+### Icons & modal header
 
 Same as Dropdown: `iconStyle`, `iconColor`, `renderLeftIcon`,
-`renderRightIcon`.
+`renderRightIcon`. MultiSelect also accepts:
+
+| Prop | Type | Description |
+|---|---|---|
+| `renderModalHeader` | `(close: () => void) => ReactElement \| null` | Renders a header view above the list inside the modal. See [Modal header](../guides/modal-header). |
 
 ### Behavior
 
@@ -124,8 +133,11 @@ Same as Dropdown: `iconStyle`, `iconColor`, `renderLeftIcon`,
 | `confirmSelectItem` | `boolean` | `false` | Call `onConfirmSelectItem` on toggles instead of immediately mutating `value`. |
 | `confirmUnSelectItem` | `boolean` | `false` | Same but for un-toggling. |
 | `onConfirmSelectItem` | `(item: T) => void` | — | Confirm handler. |
+| `closeModalWhenSelectedItem` | `boolean` | `false` | When `true`, the list closes after each toggle. Defaults to `false` to match typical multi-select UX (keep selecting). |
 | `showsVerticalScrollIndicator` | `boolean` | `true` | Scroll indicator on the list. |
 | `flatListProps` | `Omit<FlatListProps<T>, 'renderItem' \| 'data'>` | — | Passthrough to the underlying `FlatList`. |
+| `onEndReached` | `() => void` | — | Fires when the list scrolls within `onEndReachedThreshold` of the bottom. See [Pagination](../guides/end-reached-pagination). |
+| `onEndReachedThreshold` | `number` | `0.5` | Distance from the end (in viewport units) at which `onEndReached` fires. |
 | `excludeItems` | `T[]` | `[]` | Items to hide from the list. |
 | `excludeSearchItems` | `T[]` | `[]` | Items shown in the list but excluded from search. |
 
@@ -168,6 +180,10 @@ Dropdown API.
 ## Related guides
 
 - [Custom search field](../guides/custom-search-field)
+- [Search input passthrough](../guides/search-input-props)
+- [Selected-item ordering](../guides/selected-ordering)
+- [Pagination with `onEndReached`](../guides/end-reached-pagination)
+- [Modal header](../guides/modal-header)
 - [Disabled items](../guides/disabled-items)
 - [Chip row inside the trigger](../guides/multi-select-inside-mode)
 - [Nest inside a Modal](../guides/nested-in-modal)

@@ -65,7 +65,8 @@ does, plus:
 | Prop | Type | Required | Description |
 |---|---|---|---|
 | `imageField` | `string` | Yes | Field on each item whose value is an `ImageSourcePropType` (e.g. a `{ uri }` object or a `require(...)`). |
-| `imageStyle` | `ImageStyle` | No | Style applied to the image rendered next to each label. |
+| `imageStyle` | `ImageStyle` | No | Style applied to the image rendered next to each item label in the list. |
+| `selectedImageStyle` | `ImageStyle` | No | Extra style applied only to the image rendered inside the trigger when an item is selected. Merged on top of `imageStyle`. |
 
 Items also render their image in the trigger when selected.
 

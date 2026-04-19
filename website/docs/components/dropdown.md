@@ -84,24 +84,29 @@ export function FruitPicker() {
 |---|---|---|---|
 | `itemContainerStyle` | `ViewStyle` | — | Style merged on top of the built-in row style. Use this to change padding. |
 | `itemTextStyle` | `TextStyle` | — | Style for the default item label text. |
+| `activeItemTextStyle` | `TextStyle` | — | Extra text style applied only to the currently-selected row. |
 | `activeColor` | `string` | `'#F6F7F8'` | Background color of the currently selected row in the list. |
 | `renderItem` | `(item: T, selected?: boolean) => ReactElement` | — | Fully custom row renderer. Overrides the default label. |
 | `disabledField` | `keyof T` | — | When set, items whose value at this field is truthy are non-interactive. |
+| `hideSelectedFromList` | `boolean` | `false` | When `true`, the currently selected item is removed from the rendered list. |
 
 ### Search
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `search` | `boolean` | `false` | Show the search input above the list. |
-| `searchField` | `keyof T` | `labelField` | Which field to match against. See [Custom search field](../guides/custom-search-field). |
+| `searchField` | `keyof T \| (keyof T)[]` | `labelField` | Which field(s) to match against. Pass an array to search several at once. See [Custom search field](../guides/custom-search-field). |
 | `searchQuery` | `(keyword: string, labelValue: string) => boolean` | — | Fully custom matcher. See [Custom matcher](../guides/custom-search-matcher). |
+| `searchKeyboardType` | `KeyboardTypeOptions` | — | `keyboardType` for the search input (e.g. `'numeric'`, `'email-address'`). |
+| `searchInputProps` | `TextInputProps` | — | Extra props spread onto the underlying search `<TextInput>` (`selectionColor`, `returnKeyType`, `autoCapitalize`, etc.). See [Search input passthrough](../guides/search-input-props). |
+| `persistSearch` | `boolean` | `false` | Keep the search text across opens / selections instead of clearing it. |
 | `inputSearchStyle` | `ViewStyle` | — | Style for the search input. |
 | `searchPlaceholder` | `string` | — | Placeholder text for the search input. |
 | `searchPlaceholderTextColor` | `string` | `'gray'` | Placeholder color for the search input. |
 | `renderInputSearch` | `(onSearch: (text: string) => void) => ReactElement` | — | Fully custom search input. |
 | `onChangeText` | `(text: string) => void` | — | Fires whenever the search text changes (including when the dropdown closes). |
 
-### Icons
+### Icons & trigger
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
@@ -109,6 +114,8 @@ export function FruitPicker() {
 | `iconColor` | `string` | `'gray'` | Tint for the default right-side chevron. |
 | `renderLeftIcon` | `(visible?: boolean) => ReactElement \| null` | — | Custom left icon; receives whether the list is open. |
 | `renderRightIcon` | `(visible?: boolean) => ReactElement \| null` | — | Custom right icon; receives whether the list is open. See [Icons per state](../guides/icon-per-state). |
+| `renderSelectedItem` | `(visible?: boolean) => ReactElement \| null` | — | Replace the entire trigger body (left icon, label, right icon) with a custom layout. See [Custom trigger](../guides/custom-trigger). |
+| `renderModalHeader` | `(close: () => void) => ReactElement \| null` | — | Renders a header view above the list inside the modal. Receives a `close()` to dismiss. See [Modal header](../guides/modal-header). |
 
 ### Behavior
 
@@ -122,6 +129,8 @@ export function FruitPicker() {
 | `closeModalWhenSelectedItem` | `boolean` | `true` | When `false`, the list stays open after a selection. |
 | `showsVerticalScrollIndicator` | `boolean` | `true` | Shows the vertical scroll indicator on the list. |
 | `flatListProps` | `Omit<FlatListProps<T>, 'renderItem' \| 'data'>` | — | Passthrough to the underlying `FlatList`. |
+| `onEndReached` | `() => void` | — | Fires when the list scrolls within `onEndReachedThreshold` of the bottom. See [Pagination](../guides/end-reached-pagination). |
+| `onEndReachedThreshold` | `number` | `0.5` | Distance from the end (in viewport units) at which `onEndReached` fires. |
 | `excludeItems` | `T[]` | `[]` | Items to hide from the rendered list. |
 | `excludeSearchItems` | `T[]` | `[]` | Items that show in the list but are excluded from search matches. |
 
@@ -174,6 +183,10 @@ See [Open and close programmatically](../guides/imperative-open-close).
 
 - [Custom search field](../guides/custom-search-field)
 - [Custom search matcher](../guides/custom-search-matcher)
+- [Search input passthrough](../guides/search-input-props)
+- [Pagination with `onEndReached`](../guides/end-reached-pagination)
+- [Custom trigger](../guides/custom-trigger)
+- [Modal header](../guides/modal-header)
 - [Disabled items](../guides/disabled-items)
 - [Nest inside a Modal](../guides/nested-in-modal)
 - [Icons per open state](../guides/icon-per-state)
