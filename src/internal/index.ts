@@ -12,6 +12,7 @@ export {
 export { createKeyExtractor } from './keyExtractor';
 export { createSearchPredicate, normalize } from './search';
 export { useKeyboardTracking } from './useKeyboardTracking';
+export { useReducedMotion } from './useReducedMotion';
 export {
   useTriggerMeasurement,
   type TriggerPosition,

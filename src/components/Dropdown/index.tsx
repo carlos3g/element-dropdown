@@ -34,6 +34,7 @@ import {
   EMPTY_DATA,
   styleContainerVertical,
   useKeyboardTracking,
+  useReducedMotion,
   useTriggerMeasurement,
 } from '../../internal';
 import { DropdownProps, IDropdownRef, Section } from './model';
@@ -244,6 +245,10 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
     // Re-measure whenever the keyboard shows or hides so the list
     // re-positions itself above the keyboard.
     const keyboardHeight = useKeyboardTracking(_measure);
+
+    // Honour the user's "reduce motion" OS preference — disable the
+    // Modal slide / fade when they've asked for less motion.
+    const reducedMotion = useReducedMotion();
 
     const getValue = useCallback(() => {
       const defaultValue =
@@ -764,6 +769,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
             <Modal
               transparent
               statusBarTranslucent
+              animationType={reducedMotion ? 'none' : undefined}
               visible={visible}
               supportedOrientations={['landscape', 'portrait']}
               onRequestClose={showOrClose}
@@ -830,6 +836,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       containerStyle,
       styleHorizontal,
       _renderList,
+      reducedMotion,
       H,
     ]);
 

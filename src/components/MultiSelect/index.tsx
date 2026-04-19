@@ -30,6 +30,7 @@ import {
   EMPTY_DATA,
   styleContainerVertical,
   useKeyboardTracking,
+  useReducedMotion,
   useTriggerMeasurement,
 } from '../../internal';
 import { IMultiSelectRef, MultiSelectProps, Section } from './model';
@@ -263,6 +264,10 @@ const MultiSelectComponent = React.forwardRef<
   // Re-measure whenever the keyboard shows or hides so the list
   // re-positions itself above the keyboard.
   const keyboardHeight = useKeyboardTracking(_measure);
+
+  // Honour the user's "reduce motion" OS preference — disable the
+  // Modal slide / fade when they've asked for less motion.
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     getValue();
@@ -736,6 +741,7 @@ const MultiSelectComponent = React.forwardRef<
           <Modal
             transparent
             statusBarTranslucent
+            animationType={reducedMotion ? 'none' : undefined}
             visible={visible}
             supportedOrientations={['landscape', 'portrait']}
             onRequestClose={showOrClose}
@@ -798,6 +804,7 @@ const MultiSelectComponent = React.forwardRef<
     containerStyle,
     styleHorizontal,
     _renderList,
+    reducedMotion,
     H,
   ]);
 
@@ -819,6 +826,11 @@ const MultiSelectComponent = React.forwardRef<
 
     return (
       <View
+        // Announce selection changes to screen readers. TalkBack /
+        // VoiceOver will read any newly-added chip on toggle, so
+        // users hear "Added Apple" without having to navigate back
+        // to the chip row.
+        accessibilityLiveRegion="polite"
         style={StyleSheet.flatten([
           styles.rowSelectedItem,
           inside && styles.flex1,

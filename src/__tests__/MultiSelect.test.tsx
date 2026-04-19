@@ -850,4 +850,13 @@ describe('MultiSelect — a11y defaults', () => {
       'Opens fruit picker'
     );
   });
+
+  it('marks the chip row as a polite accessibility live region', () => {
+    const { UNSAFE_getByProps } = setup({ value: ['apple'] });
+    // The container around the chips announces additions to screen
+    // readers without forcing the user back to the row.
+    expect(
+      UNSAFE_getByProps({ accessibilityLiveRegion: 'polite' })
+    ).toBeTruthy();
+  });
 });

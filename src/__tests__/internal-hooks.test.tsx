@@ -1,7 +1,11 @@
 import { act, renderHook } from '@testing-library/react-native';
-import { Keyboard, View } from 'react-native';
+import { AccessibilityInfo, Keyboard, View } from 'react-native';
 
-import { useKeyboardTracking, useTriggerMeasurement } from '../internal';
+import {
+  useKeyboardTracking,
+  useReducedMotion,
+  useTriggerMeasurement,
+} from '../internal';
 
 /**
  * Capture the listener callback registered with Keyboard.addListener so
@@ -216,5 +220,49 @@ describe('useTriggerMeasurement', () => {
 
     expect(result.current.position?.top).toBeDefined();
     expect(result.current.position?.bottom).toBeDefined();
+  });
+});
+
+describe('useReducedMotion', () => {
+  it('starts false by default', () => {
+    const { result } = renderHook(() => useReducedMotion());
+    expect(result.current).toBe(false);
+  });
+
+  it('flips to true when AccessibilityInfo reports enabled', async () => {
+    const probeSpy = jest
+      .spyOn(AccessibilityInfo, 'isReduceMotionEnabled')
+      .mockResolvedValue(true);
+
+    const { result } = renderHook(() => useReducedMotion());
+
+    // Flush the async probe resolution.
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current).toBe(true);
+    probeSpy.mockRestore();
+  });
+
+  it('updates when the OS fires a reduceMotionChanged event', () => {
+    let fire: (enabled: boolean) => void = () => {};
+    const addSpy = jest
+      .spyOn(AccessibilityInfo, 'addEventListener')
+      .mockImplementation((event: any, cb: any) => {
+        if (event === 'reduceMotionChanged') fire = cb;
+        return { remove: () => {} } as any;
+      });
+
+    const { result } = renderHook(() => useReducedMotion());
+    expect(result.current).toBe(false);
+
+    act(() => fire(true));
+    expect(result.current).toBe(true);
+
+    act(() => fire(false));
+    expect(result.current).toBe(false);
+
+    addSpy.mockRestore();
   });
 });
