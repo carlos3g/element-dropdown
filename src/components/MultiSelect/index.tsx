@@ -100,6 +100,7 @@ const MultiSelectComponent = React.forwardRef<
     excludeSearchItems = [],
     hitSlop,
     allowFontScaling,
+    isInsideModal = false,
   } = props;
 
   const ref = useRef<View>(null);
@@ -214,17 +215,30 @@ const MultiSelectComponent = React.forwardRef<
         const bottom = H - top + height;
         const left = I18nManager.isRTL ? W - width - pageX : pageX;
 
+        // When nested inside an RN Modal, measureInWindow already reports
+        // coordinates relative to the Modal root, so the status-bar offset
+        // ends up double-counted. See upstream #362.
+        const statusOffset = isInsideModal ? 0 : statusBarHeight;
+
         setPosition({
           isFull,
           width: Math.floor(width),
-          top: Math.floor(top + statusBarHeight),
-          bottom: Math.floor(bottom - statusBarHeight),
+          top: Math.floor(top + statusOffset),
+          bottom: Math.floor(bottom - statusOffset),
           left: Math.floor(left),
           height: Math.floor(height),
         });
       });
     }
-  }, [H, W, orientation, mode]);
+  }, [H, W, orientation, mode, isInsideModal]);
+
+  // Drop the cached measurement on close so reopening waits for a fresh
+  // measurement before mounting the Modal (upstream #198, #330, #298).
+  useEffect(() => {
+    if (!visible) {
+      setPosition(undefined);
+    }
+  }, [visible]);
 
   const onKeyboardDidShow = useCallback(
     (e: KeyboardEvent) => {

@@ -48,6 +48,15 @@ export interface MultiSelectProps<T> {
   search?: boolean;
   hitSlop?: Insets | number;
   allowFontScaling?: boolean;
+  /**
+   * Set when this MultiSelect is rendered inside a React Native Modal.
+   * React Native reports `measureInWindow` coordinates relative to the
+   * outermost Modal, not the screen, so the component's internal
+   * `statusBarHeight` offset ends up double-counted. Set this to `true`
+   * to skip that offset and have the list open against the trigger
+   * correctly.
+   */
+  isInsideModal?: boolean;
   disable?: boolean;
   showsVerticalScrollIndicator?: boolean;
   searchPlaceholder?: string;
