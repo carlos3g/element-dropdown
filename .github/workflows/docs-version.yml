@@ -82,7 +82,16 @@ jobs:
                   website/versioned_docs/version-${{ steps.v.outputs.version }} \
                   website/versioned_sidebars/version-${{ steps.v.outputs.version }}-sidebars.json
           git commit -m "docs: snapshot ${{ steps.v.outputs.version }}"
-          git push origin master
+          # The Changelog workflow also fires on release:published and also
+          # pushes to master, so the two can race. Rebase-and-retry on
+          # non-fast-forward instead of failing.
+          for i in 1 2 3; do
+            if git push origin master; then exit 0; fi
+            echo "push rejected (attempt $i) — pulling and retrying"
+            git pull --rebase origin master
+          done
+          echo "push failed after 3 attempts" >&2
+          exit 1
 
       # Pushes made with the default GITHUB_TOKEN don't trigger downstream
       # workflows (GitHub anti-loop safeguard), so the Docs workflow that

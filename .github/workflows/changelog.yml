@@ -87,4 +87,12 @@ jobs:
           fi
           git add CHANGELOG.md
           git commit -m "docs: refresh CHANGELOG.md for ${{ github.event.release.tag_name || 'manual sync' }}"
-          git push origin master
+          # docs-version.yml also pushes to master on the same release
+          # event — rebase-and-retry to tolerate the race.
+          for i in 1 2 3; do
+            if git push origin master; then exit 0; fi
+            echo "push rejected (attempt $i) — pulling and retrying"
+            git pull --rebase origin master
+          done
+          echo "push failed after 3 attempts" >&2
+          exit 1
