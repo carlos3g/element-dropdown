@@ -2,6 +2,7 @@ import type React from 'react';
 import type {
   FlatListProps,
   ImageStyle,
+  Insets,
   StyleProp,
   TextStyle,
   ViewStyle,
@@ -45,6 +46,8 @@ export interface MultiSelectProps<T> {
   searchField?: keyof T;
   disabledField?: keyof T;
   search?: boolean;
+  hitSlop?: Insets | number;
+  allowFontScaling?: boolean;
   disable?: boolean;
   showsVerticalScrollIndicator?: boolean;
   searchPlaceholder?: string;
