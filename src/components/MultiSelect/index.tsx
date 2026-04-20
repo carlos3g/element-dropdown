@@ -107,6 +107,7 @@ const MultiSelectComponent = React.forwardRef<
     accessibilityLabel,
     accessibilityHint,
     itemAccessibilityLabelField,
+    chipRemoveAccessibilityHint = 'Double tap to remove from selection',
     visibleSelectedItem = true,
     mode = 'default',
     closeModalWhenSelectedItem = false,
@@ -874,7 +875,7 @@ const MultiSelectComponent = React.forwardRef<
                 testID={_get(e, itemTestIDField || labelField)}
                 accessibilityLabel={itemLabel}
                 accessibilityRole="button"
-                accessibilityHint="Double tap to remove from selection"
+                accessibilityHint={chipRemoveAccessibilityHint}
                 key={_get(e, labelField)}
                 onPress={() => unSelect(e)}
               >
@@ -889,7 +890,7 @@ const MultiSelectComponent = React.forwardRef<
               testID={_get(e, itemTestIDField || labelField)}
               accessibilityLabel={itemLabel}
               accessibilityRole="button"
-              accessibilityHint="Double tap to remove from selection"
+              accessibilityHint={chipRemoveAccessibilityHint}
               key={_get(e, labelField)}
               onPress={() => unSelect(e)}
             >

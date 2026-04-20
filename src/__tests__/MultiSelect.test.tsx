@@ -876,6 +876,30 @@ describe('MultiSelect — a11y defaults', () => {
     expect(screen.getByTestId('Apple').props.accessibilityRole).toBe('button');
   });
 
+  it('lets consumers override the chip remove accessibility hint', () => {
+    setup({
+      value: ['apple'],
+      chipRemoveAccessibilityHint: 'Toque duas vezes para remover',
+    });
+
+    const chip = screen.getByTestId('Apple');
+    expect(chip.props.accessibilityHint).toBe('Toque duas vezes para remover');
+  });
+
+  it('applies the same override when renderSelectedItem is also used', () => {
+    setup({
+      value: ['apple'],
+      chipRemoveAccessibilityHint: 'Remover maçã',
+      renderSelectedItem: (item) => <Text>{item.label}</Text>,
+    });
+
+    // When renderSelectedItem is supplied, the chip label is rendered
+    // by the consumer; the TouchableWithoutFeedback that owns the
+    // accessibility props still carries our testID.
+    const chip = screen.getByTestId('Apple');
+    expect(chip.props.accessibilityHint).toBe('Remover maçã');
+  });
+
   it('sets accessibilityRole="button" and hint on chips', () => {
     setup({ value: ['apple'] });
     const chip = screen.getByTestId('Apple');

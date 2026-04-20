@@ -358,6 +358,13 @@ export interface MultiSelectProps<T> {
   accessibilityHint?: string;
   /** Field on each item used for its `accessibilityLabel`. @default labelField */
   itemAccessibilityLabelField?: string;
+  /**
+   * `accessibilityHint` announced on each chip after its label and
+   * role. Override to localize or to describe a non-standard remove
+   * gesture (e.g. "Swipe right to remove").
+   * @default 'Double tap to remove from selection'
+   */
+  chipRemoveAccessibilityHint?: string;
   /** `testID` for the trigger; propagated to the search and list. */
   testID?: string;
   /** Field on each item used as its `testID`. @default labelField */
