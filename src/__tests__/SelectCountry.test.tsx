@@ -2,7 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { SelectCountry } from '..';
-import type { ISelectCountryRef } from '..';
+import type { ISelectCountryRef, SelectCountryProps } from '..';
 
 type Country = {
   label: string;
@@ -28,9 +28,7 @@ const data: Country[] = [
   },
 ];
 
-const setup = (
-  props: Partial<React.ComponentProps<typeof SelectCountry>> = {}
-) =>
+const setup = (props: Partial<SelectCountryProps<Country>> = {}) =>
   render(
     <SelectCountry
       testID="country"

@@ -74,4 +74,8 @@ const SelectCountryComponent = React.forwardRef<
   );
 });
 
-export default SelectCountryComponent;
+// Preserve the `<T>` generic across the public type boundary.
+// See Dropdown/index.tsx for the full rationale.
+export default SelectCountryComponent as <T>(
+  props: SelectCountryProps<T>
+) => React.ReactElement | null;

@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { MultiSelect } from '..';
-import type { IMultiSelectRef } from '..';
+import type { IMultiSelectRef, MultiSelectProps } from '..';
 
 type Item = { label: string; value: string };
 
@@ -13,7 +13,7 @@ const data: Item[] = [
   { label: 'Cherry', value: 'cherry' },
 ];
 
-const setup = (props: Partial<React.ComponentProps<typeof MultiSelect>> = {}) =>
+const setup = (props: Partial<MultiSelectProps<Item>> = {}) =>
   render(
     <MultiSelect
       testID="multiselect"
@@ -526,9 +526,7 @@ describe('MultiSelect — sections', () => {
     },
   ];
 
-  const setupSections = (
-    props: Partial<React.ComponentProps<typeof MultiSelect>> = {}
-  ) =>
+  const setupSections = (props: Partial<MultiSelectProps<Item>> = {}) =>
     render(
       <MultiSelect
         testID="multiselect"

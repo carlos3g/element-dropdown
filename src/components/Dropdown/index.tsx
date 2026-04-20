@@ -931,4 +931,17 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
   }
 );
 
-export default DropdownComponent;
+// Preserve the `<T>` generic across the public type boundary.
+// `React.forwardRef<Ref, Props>` can only accept a single concrete
+// props type, so the inner implementation stays pinned to
+// `DropdownProps<any>` for runtime. We re-introduce the generic here
+// with a cast so that `<Dropdown data={users} ... />` infers
+// `onChange(item: User)` and `renderItem(item: User, ...)` from the
+// `data` prop's element type — instead of the `any` the raw
+// forwardRef signature would surface. The cast is safe because the
+// runtime behaviour doesn't depend on `T`: all field access goes
+// through `labelField` / `valueField`, which are already typed as
+// `keyof T` in the model.
+export default DropdownComponent as <T>(
+  props: DropdownProps<T>
+) => React.ReactElement | null;

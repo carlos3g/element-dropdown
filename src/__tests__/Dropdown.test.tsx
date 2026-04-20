@@ -3,7 +3,7 @@ import { Text, TextInput } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { Dropdown } from '..';
-import type { IDropdownRef } from '..';
+import type { DropdownProps, IDropdownRef } from '..';
 
 type Item = { label: string; value: string };
 
@@ -13,7 +13,7 @@ const data: Item[] = [
   { label: 'Cherry', value: 'cherry' },
 ];
 
-const setup = (props: Partial<React.ComponentProps<typeof Dropdown>> = {}) =>
+const setup = (props: Partial<DropdownProps<Item>> = {}) =>
   render(
     <Dropdown
       testID="dropdown"
@@ -566,9 +566,7 @@ describe('Dropdown — sections', () => {
     },
   ];
 
-  const setupSections = (
-    props: Partial<React.ComponentProps<typeof Dropdown>> = {}
-  ) =>
+  const setupSections = (props: Partial<DropdownProps<Item>> = {}) =>
     render(
       <Dropdown
         testID="dropdown"

@@ -1032,4 +1032,11 @@ const MultiSelectComponent = React.forwardRef<
   );
 });
 
-export default MultiSelectComponent;
+// Preserve the `<T>` generic across the public type boundary. See
+// Dropdown/index.tsx for the full rationale — the inner forwardRef
+// stays pinned to `MultiSelectProps<any>` and we cast T back in at
+// the export so consumers get `renderItem(item: T, ...)` and
+// `renderSelectedItem(item: T, ...)` inferred from `data`.
+export default MultiSelectComponent as <T>(
+  props: MultiSelectProps<T>
+) => React.ReactElement | null;
