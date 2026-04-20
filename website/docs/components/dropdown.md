@@ -80,6 +80,7 @@ export function FruitPicker() {
 | `style` | `ViewStyle` | — | Style for the outer wrapper. |
 | `containerStyle` | `ViewStyle` | — | Style for the floating list container. |
 | `backgroundColor` | `string` | — | Color of the scrim behind the modal in full-screen modes. |
+| `modalAnimationType` | `'none' \| 'slide' \| 'fade'` | RN default | Forwarded to the underlying React Native `<Modal>`. When the OS "Reduce Motion" setting is on, this is always forced to `'none'`. |
 | `maxHeight` | `number` | `340` | Max height of the list. |
 | `minHeight` | `number` | `0` | Min height of the list. |
 | `mode` | `'default' \| 'modal' \| 'auto'` | `'default'` | `'modal'` centers the list on screen; `'auto'` measures trigger position. |

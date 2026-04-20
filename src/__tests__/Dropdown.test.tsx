@@ -766,3 +766,21 @@ describe('Dropdown — a11y defaults', () => {
     expect(UNSAFE_getByProps({ accessibilityViewIsModal: true })).toBeTruthy();
   });
 });
+
+describe('Dropdown — modalAnimationType', () => {
+  it('forwards modalAnimationType to the underlying Modal', () => {
+    const { UNSAFE_getByType } = setup({ modalAnimationType: 'fade' });
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    const Modal = require('react-native').Modal;
+    expect(UNSAFE_getByType(Modal).props.animationType).toBe('fade');
+  });
+
+  it('leaves animationType undefined by default (RN platform default)', () => {
+    const { UNSAFE_getByType } = setup();
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    const Modal = require('react-native').Modal;
+    expect(UNSAFE_getByType(Modal).props.animationType).toBeUndefined();
+  });
+});

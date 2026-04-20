@@ -860,3 +860,13 @@ describe('MultiSelect — a11y defaults', () => {
     ).toBeTruthy();
   });
 });
+
+describe('MultiSelect — modalAnimationType', () => {
+  it('forwards modalAnimationType to the underlying Modal', () => {
+    const { UNSAFE_getByType } = setup({ modalAnimationType: 'fade' });
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    const Modal = require('react-native').Modal;
+    expect(UNSAFE_getByType(Modal).props.animationType).toBe('fade');
+  });
+});

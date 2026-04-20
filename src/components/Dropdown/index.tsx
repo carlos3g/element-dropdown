@@ -97,6 +97,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       flatListProps,
       searchQuery,
       backgroundColor,
+      modalAnimationType,
       onChangeText,
       confirmSelectItem,
       onConfirmSelectItem,
@@ -803,7 +804,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
             <Modal
               transparent
               statusBarTranslucent
-              animationType={reducedMotion ? 'none' : undefined}
+              animationType={reducedMotion ? 'none' : modalAnimationType}
               visible={visible}
               supportedOrientations={['landscape', 'portrait']}
               onRequestClose={showOrClose}
@@ -870,6 +871,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       containerStyle,
       styleHorizontal,
       _renderList,
+      modalAnimationType,
       reducedMotion,
       H,
     ]);

@@ -99,6 +99,7 @@ const MultiSelectComponent = React.forwardRef<
     alwaysRenderSelectedItem = false,
     searchQuery,
     backgroundColor,
+    modalAnimationType,
     onChangeText,
     confirmSelectItem,
     confirmUnSelectItem,
@@ -770,7 +771,7 @@ const MultiSelectComponent = React.forwardRef<
           <Modal
             transparent
             statusBarTranslucent
-            animationType={reducedMotion ? 'none' : undefined}
+            animationType={reducedMotion ? 'none' : modalAnimationType}
             visible={visible}
             supportedOrientations={['landscape', 'portrait']}
             onRequestClose={showOrClose}
@@ -833,6 +834,7 @@ const MultiSelectComponent = React.forwardRef<
     containerStyle,
     styleHorizontal,
     _renderList,
+    modalAnimationType,
     reducedMotion,
     H,
   ]);

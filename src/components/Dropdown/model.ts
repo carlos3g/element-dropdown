@@ -163,6 +163,13 @@ export interface DropdownProps<T> {
   containerStyle?: StyleProp<ViewStyle>;
   /** Color of the scrim behind the modal in full-screen modes. */
   backgroundColor?: string;
+  /**
+   * `animationType` passed to the underlying React Native `<Modal>`.
+   * When the OS "Reduce Motion" setting is on, this is always
+   * forced to `'none'` regardless of the prop value.
+   * @default RN platform default (iOS: `'slide'`, Android: `'fade'`-ish)
+   */
+  modalAnimationType?: 'none' | 'slide' | 'fade';
   /** Maximum height of the list. @default 340 */
   maxHeight?: number;
   /** Minimum height of the list. @default 0 */
