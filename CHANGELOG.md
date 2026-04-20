@@ -11,6 +11,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- generated:start -->
 
 
+## [v2.18.0](https://github.com/carlos3g/element-dropdown/releases/tag/v2.18.0) — 2026-04-20
+
+Minor bump. Public component types now preserve the `<T>` generic across the export boundary, so every TypeScript consumer gets real inference on `onChange`, `renderItem`, `renderSelectedItem`, and friends. Runtime is unchanged — drop-in compatibility preserved (`compatibility.test.tsx` green).
+
+#### Type inference fix
+
+Before 2.18.0 the three exports were typed as
+`React.forwardRef<Ref, Props<any>>` — `React.forwardRef`'s signature only accepts one concrete props type, which silently pinned the generic to `any` at the public boundary. Consumers writing:
+
+```tsx
+const users: User[] = [/* ... */];
+
+<Dropdown
+  data={users}
+  labelField=\"name\"
+  valueField=\"id\"
+  onChange={(item) => /* item inferred as `any` */}
+  renderItem={(item, selected, index) => /* item inferred as `any` */}
+/>
+```
+
+got `any` in `onChange` and `renderItem` despite `data: User[]`, and `labelField` / `valueField` weren't constrained to `keyof User`.
+
+2.18.0 casts the default exports to `<T>(props: ...Props<T>) => ReactElement`, so the generic flows through. `item` is now inferred as `User`, and `labelField` / `valueField` are compile-time constrained to `keyof User`.
+
+Added `src/__tests__/types.test.tsx` — compile-time guardrails using a strict `Equals<A, B>` helper (function-identity distributive conditional; does not collapse under bivariance) so any future regression to `any` fails `yarn typecheck` immediately.
+
+#### Potentially breaking for one TS pattern
+
+Consumers using `React.ComponentProps<typeof Dropdown>` (or the analogues) now get `DropdownProps<unknown>` instead of `DropdownProps<any>`. If you relied on that utility type anywhere, switch to the direct props type: `DropdownProps<Item>`, `MultiSelectProps<Item>`, `SelectCountryProps<Country>` — all three are already exported and are what you wanted anyway.
+
+Everything else — runtime behaviour, prop signatures, default values, accessibility, imperative refs — is unchanged.
+
+#### Compatibility
+
+Drop-in promise preserved. A 2.12.x `react-native-element-dropdown` consumer can swap the install name and import path and nothing else.
+
 ## [v2.17.0](https://github.com/carlos3g/element-dropdown/releases/tag/v2.17.0) — 2026-04-20
 
 Minor bump. Six additive public props unlock the customization and animation surface across both components, plus one fix to Dropdown's auto-scroll virtualization. Drop-in compatibility with upstream `react-native-element-dropdown` is preserved — `compatibility.test.tsx` is green.
