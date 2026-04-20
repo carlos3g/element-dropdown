@@ -11,6 +11,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- generated:start -->
 
 
+## [v2.17.0](https://github.com/carlos3g/element-dropdown/releases/tag/v2.17.0) — 2026-04-20
+
+Minor bump. Six additive public props unlock the customization and animation surface across both components, plus one fix to Dropdown's auto-scroll virtualization. Drop-in compatibility with upstream `react-native-element-dropdown` is preserved — `compatibility.test.tsx` is green.
+
+#### New props
+
+### MultiSelect
+
+- **`renderChipRemoveIcon?: (item: T) => ReactElement`** — replace only the built-in `ⓧ` glyph on the default chip without reimplementing the whole chip via `renderSelectedItem`. Wrapped in an `accessibilityElementsHidden` View so screen readers still announce the chip through its existing role and hint.
+- **`chipRemoveAccessibilityHint?: string`** — override the English-only `"Double tap to remove from selection"` hint. Useful for localization (pt-BR, es, etc.) or custom remove gestures. Default behaviour unchanged.
+
+### Dropdown + MultiSelect
+
+- **`renderEmpty?: (searchText: string) => ReactElement | null`** — custom view rendered when the list has no rows, either because `data` / `sections` is empty or because the active search filter drops every row. Receives the current search query so callers can switch between "no data" and "no results for X" copy. Wired through to both `FlatList` and `SectionList` via `ListEmptyComponent`.
+- **`renderSearchClearIcon?: () => ReactElement | null`** — replace the hardcoded `close.png` clear glyph on the built-in search input while keeping the clear-on-press handler. Ignored when `renderInputSearch` is supplied (that prop replaces the entire search affordance).
+- **`modalAnimationType?: 'none' | 'slide' | 'fade'`** — forwarded to the underlying React Native `<Modal>`. The OS "Reduce Motion" setting still wins — the component forces `'none'` regardless of the prop value — so the accessibility invariant holds.
+- **`renderItem(item, selected, index?)`** — extends the existing signature with an optional third argument for stagger animations (`Animated.View` / `MotiView`). The `SectionList` path now forwards the section-local row index too (previously hardcoded to `0`). Existing two-argument callers keep working unchanged.
+
+#### Bug fix
+
+- **Dropdown auto-scroll virtualization on small lists.** FlatList's `initialScrollIndex` skipped mounting rows above the selected index until the user scrolled toward them. On a dataset whose total content fit within `maxHeight` there was nowhere to scroll, so rows 0..(target-1) stayed permanently unmounted — selecting option C in a 4-row list reopened with only C and D visible. Replaced with a post-mount `scrollToIndex` effect; the existing `onScrollToIndexFailed` retry path still covers large-list edge cases.
+
+#### Docs
+
+- New [Animations guide](https://carlos3g.github.io/element-dropdown/docs/guides/animations) — copy-paste recipes for Reanimated, Moti, and RN's built-in `LayoutAnimation`. The library itself ships **zero animation peer dependencies**; the guide makes that contract explicit and documents what the library deliberately won't expose (no Modal replacement, no `Animated.Value` leakage).
+- Four new animation demos in the Expo example app (chevron rotation, staggered row enter, animated MultiSelect chips, zero-dep LayoutAnimation). Example-only — the library package is unchanged.
+
+#### Compatibility
+
+Every new prop is additive. Existing consumers who upgrade from 2.16.x need no code changes — the drop-in promise (a 2.12.x `react-native-element-dropdown` user can swap the install name and import path and nothing else) still holds.
+
 ## [v2.16.0](https://github.com/carlos3g/element-dropdown/releases/tag/v2.16.0) — 2026-04-19
 
 Accessibility and performance pass. Two additive public props
