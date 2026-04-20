@@ -96,7 +96,7 @@ export function FruitPicker() {
 | `itemTextStyle` | `TextStyle` | — | Style for the default item label text. |
 | `activeItemTextStyle` | `TextStyle` | — | Extra text style applied only to the currently-selected row. |
 | `activeColor` | `string` | `'#F6F7F8'` | Background color of the currently selected row in the list. |
-| `renderItem` | `(item: T, selected?: boolean) => ReactElement` | — | Fully custom row renderer. Overrides the default label. |
+| `renderItem` | `(item: T, selected?: boolean, index?: number) => ReactElement` | — | Fully custom row renderer. Overrides the default label. The optional `index` is the row index in the current list (per-section when `sections` is used) — handy for staggered enter animations. See [Animations guide](../guides/animations). |
 | `disabledField` | `keyof T` | — | When set, items whose value at this field is truthy are non-interactive. |
 | `hideSelectedFromList` | `boolean` | `false` | When `true`, the currently selected item is removed from the rendered list. |
 

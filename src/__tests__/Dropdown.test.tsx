@@ -372,6 +372,31 @@ describe('Dropdown — custom rendering', () => {
     expect(screen.getByText('»Apple')).toBeTruthy();
   });
 
+  it('passes the row index to renderItem for stagger animations', () => {
+    const renderItem = jest.fn(
+      (item: Item, _selected?: boolean, index?: number) => (
+        <Text testID={`row-${index}`}>{item.label}</Text>
+      )
+    );
+    setup({ renderItem });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    // 3-arity signature: item, selected, index.
+    expect(renderItem).toHaveBeenCalledWith(
+      expect.objectContaining({ value: 'apple' }),
+      false,
+      0
+    );
+    expect(renderItem).toHaveBeenCalledWith(
+      expect.objectContaining({ value: 'banana' }),
+      false,
+      1
+    );
+    expect(screen.getByTestId('row-0')).toBeTruthy();
+    expect(screen.getByTestId('row-2')).toBeTruthy();
+  });
+
   it('passes the visible flag to renderLeftIcon and renderRightIcon', () => {
     const renderLeftIcon = jest.fn((visible?: boolean) => (
       <Text testID="left">{visible ? 'open' : 'closed'}</Text>

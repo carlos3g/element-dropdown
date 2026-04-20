@@ -113,7 +113,7 @@ time an item is toggled.
 | `itemTextStyle` | `TextStyle` | — | Style for the default item label. |
 | `activeItemTextStyle` | `TextStyle` | — | Extra text style applied only to selected rows. |
 | `activeColor` | `string` | `'#F6F7F8'` | Background of the row for already-selected items. |
-| `renderItem` | `(item: T, selected?: boolean) => ReactElement` | — | Fully custom row renderer. |
+| `renderItem` | `(item: T, selected?: boolean, index?: number) => ReactElement` | — | Fully custom row renderer. The optional `index` is the row index in the current list (per-section when `sections` is used) — handy for staggered enter animations. See [Animations guide](../guides/animations). |
 | `disabledField` | `keyof T` | — | Marks individual items as non-interactive. |
 | `hideSelectedFromList` | `boolean` | `false` | Hide already-selected items from the rendered list. |
 | `selectedToTop` | `boolean` | `false` | Sort selected items to the top of the list (no-op when `hideSelectedFromList` is `true`). See [Selected-item ordering](../guides/selected-ordering). |

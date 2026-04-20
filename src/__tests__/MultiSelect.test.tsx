@@ -976,6 +976,32 @@ describe('MultiSelect — a11y defaults', () => {
   });
 });
 
+describe('MultiSelect — renderItem', () => {
+  it('passes the row index to renderItem for stagger animations', () => {
+    const renderItem = jest.fn(
+      (item: Item, _selected?: boolean, index?: number) => (
+        <Text testID={`row-${index}`}>{item.label}</Text>
+      )
+    );
+    setup({ renderItem });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+
+    expect(renderItem).toHaveBeenCalledWith(
+      expect.objectContaining({ value: 'apple' }),
+      false,
+      0
+    );
+    expect(renderItem).toHaveBeenCalledWith(
+      expect.objectContaining({ value: 'banana' }),
+      false,
+      1
+    );
+    expect(screen.getByTestId('row-0')).toBeTruthy();
+    expect(screen.getByTestId('row-2')).toBeTruthy();
+  });
+});
+
 describe('MultiSelect — modalAnimationType', () => {
   it('forwards modalAnimationType to the underlying Modal', () => {
     const { UNSAFE_getByType } = setup({ modalAnimationType: 'fade' });

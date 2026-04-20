@@ -214,8 +214,20 @@ export interface MultiSelectProps<T> {
    * @default false
    */
   selectedToTop?: boolean;
-  /** Fully custom row renderer. */
-  renderItem?: (item: T, selected?: boolean) => React.ReactElement | null;
+  /**
+   * Fully custom row renderer.
+   *
+   * @param item     - The item being rendered.
+   * @param selected - Whether `item` is currently in the selection.
+   * @param index    - Row index within the current list (per-section
+   *   when `sections` is used). Useful for staggering enter animations
+   *   based on row order.
+   */
+  renderItem?: (
+    item: T,
+    selected?: boolean,
+    index?: number
+  ) => React.ReactElement | null;
 
   // ──────────────────────────────────────────────────────────────────
   // Sections (used only when `sections` is provided)

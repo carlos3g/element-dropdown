@@ -564,7 +564,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               ])}
             >
               {renderItem ? (
-                renderItem(item, selected)
+                renderItem(item, selected, index)
               ) : (
                 <Text
                   allowFontScaling={allowFontScaling}
@@ -683,7 +683,8 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
     // identity every render (which would force every row to re-render
     // even when nothing about the item changed).
     const renderSectionItem = useCallback(
-      ({ item }: { item: any }) => _renderItem({ item, index: 0 }) as any,
+      ({ item, index }: { item: any; index: number }) =>
+        _renderItem({ item, index }) as any,
       [_renderItem]
     );
 

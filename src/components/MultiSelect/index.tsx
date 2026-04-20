@@ -549,7 +549,7 @@ const MultiSelectComponent = React.forwardRef<
             ])}
           >
             {renderItem ? (
-              renderItem(item, selected)
+              renderItem(item, selected, index)
             ) : (
               <Text
                 allowFontScaling={allowFontScaling}
@@ -665,7 +665,8 @@ const MultiSelectComponent = React.forwardRef<
   // Stable wrapper for SectionList's renderItem — avoids a fresh
   // identity per render and the downstream row re-render that causes.
   const renderSectionItem = useCallback(
-    ({ item }: { item: any }) => _renderItem({ item, index: 0 }) as any,
+    ({ item, index }: { item: any; index: number }) =>
+      _renderItem({ item, index }) as any,
     [_renderItem]
   );
 

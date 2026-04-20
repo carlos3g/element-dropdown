@@ -231,8 +231,15 @@ export interface DropdownProps<T> {
    *
    * @param item     - The item being rendered.
    * @param selected - Whether `item` matches the current `value`.
+   * @param index    - Row index within the current list (per-section
+   *   when `sections` is used). Useful for staggering enter animations
+   *   based on row order.
    */
-  renderItem?: (item: T, selected?: boolean) => React.ReactElement | null;
+  renderItem?: (
+    item: T,
+    selected?: boolean,
+    index?: number
+  ) => React.ReactElement | null;
 
   // ──────────────────────────────────────────────────────────────────
   // Sections (used only when `sections` is provided)
