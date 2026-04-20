@@ -122,7 +122,8 @@ Same props as [Dropdown](./dropdown#search): `search`, `searchField`
 (supports `keyof T` or `(keyof T)[]`), `searchQuery`,
 `searchKeyboardType`, `searchInputProps`, `persistSearch`,
 `searchDebounce`, `inputSearchStyle`, `searchPlaceholder`,
-`searchPlaceholderTextColor`, `renderInputSearch`, `onChangeText`.
+`searchPlaceholderTextColor`, `renderInputSearch`,
+`renderSearchClearIcon`, `onChangeText`.
 
 ### Icons & modal header
 

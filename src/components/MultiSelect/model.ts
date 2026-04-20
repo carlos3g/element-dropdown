@@ -256,6 +256,12 @@ export interface MultiSelectProps<T> {
   renderInputSearch?: (
     onSearch: (text: string) => void
   ) => React.ReactElement | null;
+  /**
+   * Replace only the clear glyph on the built-in search input while
+   * keeping the clear-on-press behaviour. Ignored when
+   * `renderInputSearch` is supplied.
+   */
+  renderSearchClearIcon?: () => React.ReactElement | null;
   /** Fires whenever the search text changes. */
   onChangeText?: (search: string) => void;
 

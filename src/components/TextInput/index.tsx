@@ -26,6 +26,7 @@ const TextInputComponent: CTextInput = (props) => {
     onChangeText = (_value: string) => {},
     renderLeftIcon,
     renderRightIcon,
+    clearIcon,
   } = props;
 
   // Seed from the first value prop so controlled callers don't flash an
@@ -55,10 +56,12 @@ const TextInputComponent: CTextInput = (props) => {
       if (text.length > 0) {
         return (
           <TouchableOpacity onPress={() => onChange('')}>
-            <Image
-              source={ic_close}
-              style={StyleSheet.flatten([styles.icon, iconStyle])}
-            />
+            {clearIcon ?? (
+              <Image
+                source={ic_close}
+                style={StyleSheet.flatten([styles.icon, iconStyle])}
+              />
+            )}
           </TouchableOpacity>
         );
       }

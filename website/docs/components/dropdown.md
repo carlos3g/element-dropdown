@@ -114,6 +114,7 @@ export function FruitPicker() {
 | `searchPlaceholder` | `string` | — | Placeholder text for the search input. |
 | `searchPlaceholderTextColor` | `string` | `'gray'` | Placeholder color for the search input. |
 | `renderInputSearch` | `(onSearch: (text: string) => void) => ReactElement` | — | Fully custom search input. |
+| `renderSearchClearIcon` | `() => ReactElement \| null` | — | Replace only the clear glyph on the built-in search input while keeping the clear-on-press behaviour. Ignored when `renderInputSearch` is supplied. |
 | `onChangeText` | `(text: string) => void` | — | Fires whenever the search text changes (including when the dropdown closes). |
 
 ### Icons & trigger

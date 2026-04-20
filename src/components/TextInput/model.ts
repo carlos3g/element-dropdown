@@ -15,6 +15,13 @@ interface Props extends TextInputProps {
   showIcon?: boolean;
   renderRightIcon?: () => React.ReactElement | null;
   renderLeftIcon?: () => React.ReactElement | null;
+  /**
+   * Replace the default `close.png` glyph shown on the built-in
+   * clear button, while keeping the `onPress` handler that clears
+   * the text. Ignored when `renderRightIcon` is provided (which
+   * takes over the whole right-icon slot).
+   */
+  clearIcon?: React.ReactElement | null;
 }
 
 export type CTextInput = React.FC<Props>;

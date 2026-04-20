@@ -88,6 +88,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       renderSelectedItem,
       renderItem,
       renderInputSearch,
+      renderSearchClearIcon,
       renderModalHeader,
       onFocus,
       onBlur,
@@ -628,6 +629,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
           searchInputProps={searchInputProps}
           iconColor={iconColor}
           iconStyle={iconStyle}
+          clearIcon={renderSearchClearIcon?.() ?? null}
         />
       ),
       [
@@ -639,6 +641,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         inputSearchStyle,
         onSearchTextChange,
         renderInputSearch,
+        renderSearchClearIcon,
         search,
         searchInputProps,
         searchKeyboardType,
