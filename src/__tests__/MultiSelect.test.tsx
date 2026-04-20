@@ -325,6 +325,38 @@ describe('MultiSelect — chip row', () => {
   });
 });
 
+describe('MultiSelect — renderEmpty', () => {
+  it('renders the empty slot when data is empty and the list is open', () => {
+    render(
+      <MultiSelect
+        testID="multiselect"
+        data={[]}
+        labelField="label"
+        valueField="value"
+        placeholder="Pick fruits"
+        onChange={jest.fn()}
+        renderEmpty={() => <Text>No fruits yet</Text>}
+      />
+    );
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    expect(screen.getByText('No fruits yet')).toBeTruthy();
+  });
+
+  it('shows renderEmpty when search filters every row out', () => {
+    setup({
+      search: true,
+      renderEmpty: (q: string) => <Text>{`No match for "${q}"`}</Text>,
+    });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    fireEvent.changeText(screen.getByTestId('multiselect input'), 'zzz');
+
+    expect(screen.getByText('No match for "zzz"')).toBeTruthy();
+    expect(screen.queryByText('Apple')).toBeNull();
+  });
+});
+
 describe('MultiSelect — search', () => {
   it('filters items by label when searching', () => {
     setup({ search: true });

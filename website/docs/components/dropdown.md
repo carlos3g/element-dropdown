@@ -139,6 +139,7 @@ export function FruitPicker() {
 | `closeModalWhenSelectedItem` | `boolean` | `true` | When `false`, the list stays open after a selection. |
 | `showsVerticalScrollIndicator` | `boolean` | `true` | Shows the vertical scroll indicator on the list. |
 | `flatListProps` | `Omit<FlatListProps<T>, 'renderItem' \| 'data'>` | — | Passthrough to the underlying `FlatList`. |
+| `renderEmpty` | `(searchText: string) => ReactElement \| null` | — | Custom view rendered when the list has no rows — either empty `data` / `sections` or a search that filters everything out. The callback receives the current search query so you can switch between "no data" and "no results for X" copy. |
 | `onEndReached` | `() => void` | — | Fires when the list scrolls within `onEndReachedThreshold` of the bottom. See [Pagination](../guides/end-reached-pagination). |
 | `onEndReachedThreshold` | `number` | `0.5` | Distance from the end (in viewport units) at which `onEndReached` fires. |
 | `excludeItems` | `T[]` | `[]` | Items to hide from the rendered list. |

@@ -180,6 +180,56 @@ describe('Dropdown — selection', () => {
   });
 });
 
+describe('Dropdown — renderEmpty', () => {
+  it('renders the empty slot when data is empty and the list is open', () => {
+    render(
+      <Dropdown
+        testID="dropdown"
+        data={[]}
+        labelField="label"
+        valueField="value"
+        placeholder="Pick a fruit"
+        onChange={jest.fn()}
+        renderEmpty={() => <Text>No fruits yet</Text>}
+      />
+    );
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    expect(screen.getByText('No fruits yet')).toBeTruthy();
+  });
+
+  it('passes the current search text to renderEmpty', () => {
+    const renderEmpty = jest.fn((q: string) => <Text>{`(${q})`}</Text>);
+    setup({ search: true, data: [], renderEmpty });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+
+    // Initial empty-data render: searchText is ''.
+    expect(renderEmpty).toHaveBeenCalledWith('');
+    expect(screen.getByText('()')).toBeTruthy();
+
+    fireEvent.changeText(screen.getByTestId('dropdown input'), 'banana');
+
+    // After typing, the callback is invoked with the new query so the
+    // consumer can switch between "no data" and "no results" copy.
+    expect(renderEmpty).toHaveBeenCalledWith('banana');
+    expect(screen.getByText('(banana)')).toBeTruthy();
+  });
+
+  it('shows renderEmpty when search filters every row out', () => {
+    setup({
+      search: true,
+      renderEmpty: (q) => <Text>{`No match for "${q}"`}</Text>,
+    });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    fireEvent.changeText(screen.getByTestId('dropdown input'), 'zzz');
+
+    expect(screen.getByText('No match for "zzz"')).toBeTruthy();
+    expect(screen.queryByText('Apple')).toBeNull();
+  });
+});
+
 describe('Dropdown — search', () => {
   it('filters items by label when searching', () => {
     setup({ search: true });

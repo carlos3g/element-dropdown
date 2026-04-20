@@ -96,6 +96,7 @@ const MultiSelectComponent = React.forwardRef<
     showsVerticalScrollIndicator = true,
     dropdownPosition = 'auto',
     flatListProps,
+    renderEmpty,
     alwaysRenderSelectedItem = false,
     searchQuery,
     backgroundColor,
@@ -666,6 +667,11 @@ const MultiSelectComponent = React.forwardRef<
     (isTopPosition: boolean) => {
       const isInverted = !inverted ? false : isTopPosition;
 
+      // Calling renderEmpty eagerly here is cheap — React only mounts
+      // the returned element when the list is actually empty, so the
+      // result is discarded on every non-empty render.
+      const emptyElement = renderEmpty ? renderEmpty(searchText) : null;
+
       const _renderListHelper = () => {
         if (usingSections) {
           return (
@@ -681,6 +687,7 @@ const MultiSelectComponent = React.forwardRef<
               showsVerticalScrollIndicator={showsVerticalScrollIndicator}
               onEndReached={onEndReached}
               onEndReachedThreshold={onEndReachedThreshold}
+              ListEmptyComponent={emptyElement}
             />
           );
         }
@@ -697,6 +704,7 @@ const MultiSelectComponent = React.forwardRef<
             showsVerticalScrollIndicator={showsVerticalScrollIndicator}
             onEndReached={onEndReached}
             onEndReachedThreshold={onEndReachedThreshold}
+            ListEmptyComponent={emptyElement}
           />
         );
       };
@@ -722,9 +730,11 @@ const MultiSelectComponent = React.forwardRef<
       inverted,
       onEndReached,
       onEndReachedThreshold,
+      renderEmpty,
       renderSectionItem,
       renderModalHeader,
       renderSearch,
+      searchText,
       showsVerticalScrollIndicator,
       testID,
       usingSections,
