@@ -49,6 +49,8 @@ interface Props {
 
   iconColor?: string;
   iconStyle?: StyleProp<ImageStyle>;
+  /** Swap the built-in clear glyph while keeping the clear-onPress. */
+  clearIcon?: React.ReactElement | null;
 }
 
 /**
@@ -73,6 +75,7 @@ export function DropdownSearchInput({
   searchInputProps,
   iconColor,
   iconStyle,
+  clearIcon,
 }: Props) {
   if (!search) return null;
 
@@ -105,6 +108,7 @@ export function DropdownSearchInput({
       placeholderTextColor={placeholderTextColor}
       showIcon
       iconStyle={[{ tintColor: iconColor }, iconStyle]}
+      clearIcon={clearIcon}
     />
   );
 }

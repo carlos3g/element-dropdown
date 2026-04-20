@@ -294,6 +294,20 @@ describe('Dropdown — search', () => {
     expect(onChangeText).toHaveBeenLastCalledWith('');
   });
 
+  it('swaps the default clear glyph via renderSearchClearIcon', () => {
+    const renderSearchClearIcon = jest.fn(() => <Text>clear-me</Text>);
+    setup({ search: true, renderSearchClearIcon });
+
+    fireEvent.press(screen.getByTestId('dropdown'));
+    // No text yet → clear icon is not rendered at all.
+    expect(screen.queryByText('clear-me')).toBeNull();
+
+    fireEvent.changeText(screen.getByTestId('dropdown input'), 'ap');
+
+    // With text, the custom icon replaces the default image.
+    expect(screen.getByText('clear-me')).toBeTruthy();
+  });
+
   it('replaces the default search input when renderInputSearch is provided', () => {
     const renderInputSearch = jest.fn((onSearch: (t: string) => void) => (
       <TextInput

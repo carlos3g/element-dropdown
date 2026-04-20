@@ -91,6 +91,7 @@ const MultiSelectComponent = React.forwardRef<
     renderSelectedItem,
     renderChipRemoveIcon,
     renderInputSearch,
+    renderSearchClearIcon,
     renderModalHeader,
     onFocus,
     onBlur,
@@ -612,6 +613,7 @@ const MultiSelectComponent = React.forwardRef<
         searchInputProps={searchInputProps}
         iconColor={iconColor}
         iconStyle={iconStyle}
+        clearIcon={renderSearchClearIcon?.() ?? null}
       />
     ),
     [
@@ -623,6 +625,7 @@ const MultiSelectComponent = React.forwardRef<
       inputSearchStyle,
       onSearchTextChange,
       renderInputSearch,
+      renderSearchClearIcon,
       search,
       searchInputProps,
       searchKeyboardType,

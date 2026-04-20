@@ -403,6 +403,19 @@ describe('MultiSelect — renderEmpty', () => {
   });
 });
 
+describe('MultiSelect — search clear icon', () => {
+  it('swaps the default clear glyph via renderSearchClearIcon', () => {
+    const renderSearchClearIcon = jest.fn(() => <Text>clear-me</Text>);
+    setup({ search: true, renderSearchClearIcon });
+
+    fireEvent.press(screen.getByTestId('multiselect'));
+    expect(screen.queryByText('clear-me')).toBeNull();
+
+    fireEvent.changeText(screen.getByTestId('multiselect input'), 'ap');
+    expect(screen.getByText('clear-me')).toBeTruthy();
+  });
+});
+
 describe('MultiSelect — search', () => {
   it('filters items by label when searching', () => {
     setup({ search: true });

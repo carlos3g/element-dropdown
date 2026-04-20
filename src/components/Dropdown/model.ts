@@ -310,6 +310,16 @@ export interface DropdownProps<T> {
     onSearch: (text: string) => void
   ) => React.ReactElement | null;
   /**
+   * Replace only the clear glyph on the built-in search input while
+   * keeping the clear-on-press behaviour. Prefer this over
+   * `renderInputSearch` when the default layout (TextInput + clear)
+   * is fine and you just want a different clear icon.
+   *
+   * Ignored when `renderInputSearch` is supplied (that prop replaces
+   * the entire search affordance).
+   */
+  renderSearchClearIcon?: () => React.ReactElement | null;
+  /**
    * Fires whenever the search text changes.
    * @param search - The new value of the search input.
    */
