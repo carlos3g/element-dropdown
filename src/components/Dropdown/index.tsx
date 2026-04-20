@@ -312,6 +312,30 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       return index >= 0 && index < listData.length ? index : -1;
     }, [autoScroll, data?.length, listData, value, valueField]);
 
+    // Scroll to the selected row *after* the list has mounted, rather
+    // than via FlatList's `initialScrollIndex`. That prop virtualizes
+    // items before the target index out of the initial render window,
+    // which for datasets whose total content fits in the viewport
+    // leaves rows 0..(target-1) permanently unmounted with nowhere to
+    // scroll. Post-mount `scrollToIndex` lets FlatList render the
+    // normal window first and then move the viewport. The existing
+    // `onScrollToIndexFailed` path retries when the target is still
+    // outside the mounted window on the first frame.
+    useEffect(() => {
+      if (!visible || autoScrollTarget < 0) return;
+      const raf = requestAnimationFrame(() => {
+        try {
+          refList.current?.scrollToIndex({
+            index: autoScrollTarget,
+            animated: false,
+          });
+        } catch {
+          // Swallow — onScrollToIndexFailed handles the retry.
+        }
+      });
+      return () => cancelAnimationFrame(raf);
+    }, [visible, autoScrollTarget]);
+
     const onScrollToIndexFailed = useCallback(
       ({ index }: { index: number }) => {
         // FlatList couldn't fulfil initialScrollIndex because the row hadn't
@@ -726,9 +750,14 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               {...flatListProps}
               keyboardShouldPersistTaps="handled"
               ref={refList}
-              initialScrollIndex={
-                autoScrollTarget >= 0 ? autoScrollTarget : undefined
-              }
+              // NOTE: we deliberately don't pass `initialScrollIndex`
+              // here. FlatList treats it as "skip mounting items
+              // before this index until the user scrolls toward
+              // them" — which, for a small dataset whose total
+              // content fits in the viewport, leaves items
+              // 0..(target-1) permanently unmounted with nowhere to
+              // scroll. Instead we scroll in an effect once the list
+              // is mounted (see `autoScrollTarget` effect above).
               onScrollToIndexFailed={onScrollToIndexFailed}
               data={listData}
               inverted={isTopPosition ? inverted : false}
@@ -755,7 +784,6 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         _renderItem,
         _renderSectionHeader,
         accessibilityLabel,
-        autoScrollTarget,
         eventClose,
         flatListProps,
         keyExtractor,

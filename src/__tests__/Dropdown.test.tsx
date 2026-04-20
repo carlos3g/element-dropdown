@@ -856,6 +856,42 @@ describe('Dropdown — a11y defaults', () => {
   });
 });
 
+describe('Dropdown — autoScroll', () => {
+  it('keeps every row mounted on reopen even when a later row is selected', () => {
+    // Regression: `initialScrollIndex={N}` on a short list whose
+    // content fit the viewport left rows 0..(N-1) unmounted with
+    // nowhere to scroll. After fixing (post-mount scrollToIndex),
+    // reopening with the last row selected must still render every
+    // row so the user can pick another.
+    const Harness = () => {
+      const [value, setValue] = React.useState<string | undefined>();
+      return (
+        <Dropdown
+          testID="dropdown"
+          data={data}
+          labelField="label"
+          valueField="value"
+          value={value}
+          onChange={(item) => setValue(item.value)}
+        />
+      );
+    };
+    render(<Harness />);
+
+    // Select the LAST row — worst case for initialScrollIndex.
+    fireEvent.press(screen.getByTestId('dropdown'));
+    fireEvent.press(screen.getByText('Cherry'));
+
+    // Reopen. Every row should render, including the two above the
+    // selection. Cherry appears twice (trigger label + list row) so
+    // we check counts rather than unique occurrence.
+    fireEvent.press(screen.getByTestId('dropdown'));
+    expect(screen.getByText('Apple')).toBeTruthy();
+    expect(screen.getByText('Banana')).toBeTruthy();
+    expect(screen.getAllByText('Cherry').length).toBeGreaterThanOrEqual(1);
+  });
+});
+
 describe('Dropdown — modalAnimationType', () => {
   it('forwards modalAnimationType to the underlying Modal', () => {
     const { UNSAFE_getByType } = setup({ modalAnimationType: 'fade' });
