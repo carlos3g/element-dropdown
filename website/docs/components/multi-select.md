@@ -89,6 +89,7 @@ time an item is toggled.
 | `style` | `ViewStyle` | — | Style for the outer wrapper. |
 | `containerStyle` | `ViewStyle` | — | Style for the floating list container. |
 | `backgroundColor` | `string` | — | Scrim color behind the modal in full-screen modes. |
+| `modalAnimationType` | `'none' \| 'slide' \| 'fade'` | RN default | Forwarded to the underlying React Native `<Modal>`. Forced to `'none'` when the OS "Reduce Motion" setting is on. |
 | `maxHeight` | `number` | `340` | Max list height. |
 | `minHeight` | `number` | `0` | Min list height. |
 | `mode` | `'default' \| 'modal' \| 'auto'` | `'default'` | See the matching Dropdown prop. |
