@@ -95,6 +95,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       showsVerticalScrollIndicator = true,
       dropdownPosition = 'auto',
       flatListProps,
+      renderEmpty,
       searchQuery,
       backgroundColor,
       onChangeText,
@@ -686,6 +687,11 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
       (isTopPosition: boolean) => {
         const isInverted = !inverted ? false : isTopPosition;
 
+        // Calling renderEmpty eagerly here is cheap — React only mounts
+        // the returned element when the list is actually empty, so the
+        // result is discarded on every non-empty render.
+        const emptyElement = renderEmpty ? renderEmpty(searchText) : null;
+
         const _renderListHelper = () => {
           if (usingSections) {
             return (
@@ -704,6 +710,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
                 showsVerticalScrollIndicator={showsVerticalScrollIndicator}
                 onEndReached={onEndReached}
                 onEndReachedThreshold={onEndReachedThreshold}
+                ListEmptyComponent={emptyElement}
               />
             );
           }
@@ -725,6 +732,7 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
               showsVerticalScrollIndicator={showsVerticalScrollIndicator}
               onEndReached={onEndReached}
               onEndReachedThreshold={onEndReachedThreshold}
+              ListEmptyComponent={emptyElement}
             />
           );
         };
@@ -753,8 +761,10 @@ const DropdownComponent = React.forwardRef<IDropdownRef, DropdownProps<any>>(
         onEndReached,
         onEndReachedThreshold,
         onScrollToIndexFailed,
+        renderEmpty,
         renderModalHeader,
         renderSearch,
+        searchText,
         showsVerticalScrollIndicator,
         testID,
         usingSections,

@@ -315,6 +315,18 @@ export interface MultiSelectProps<T> {
   closeModalWhenSelectedItem?: boolean;
   /** Show the vertical scroll indicator on the list. @default true */
   showsVerticalScrollIndicator?: boolean;
+  /**
+   * Render a custom view when the list has no rows — either because
+   * `data` / `sections` is empty, or because the current search
+   * filtered every row out. Receives the current search text so the
+   * consumer can differentiate "no data" (empty string) from "no
+   * results for this query".
+   *
+   * @param searchText - Current search query, or `''` when no search
+   *   is active.
+   * @see https://carlos3g.github.io/element-dropdown/docs/guides/empty-state
+   */
+  renderEmpty?: (searchText: string) => React.ReactElement | null;
   /** Passthrough to the underlying `FlatList`. */
   flatListProps?: Omit<FlatListProps<any>, 'renderItem' | 'data'>;
   /** Items hidden from the rendered list. @default [] */
