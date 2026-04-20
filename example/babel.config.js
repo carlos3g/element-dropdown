@@ -17,6 +17,9 @@ module.exports = function (api) {
           },
         },
       ],
+      // Reanimated 4 splits the worklet babel transform out into
+      // `react-native-worklets/plugin`. MUST be listed last.
+      'react-native-worklets/plugin',
     ],
   };
 };

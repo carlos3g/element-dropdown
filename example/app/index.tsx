@@ -22,10 +22,19 @@ type Demo = {
     | '/inside-modal'
     | '/custom-search-matcher'
     | '/multi-select-inside'
-    | '/sectioned-lists';
+    | '/sectioned-lists'
+    | '/animated-chevron'
+    | '/animated-stagger'
+    | '/animated-chips'
+    | '/layout-animation';
   title: string;
   description: string;
-  section: 'Dropdown' | 'MultiSelect' | 'SelectCountry' | 'Fork-only';
+  section:
+    | 'Dropdown'
+    | 'MultiSelect'
+    | 'SelectCountry'
+    | 'Fork-only'
+    | 'Animations';
 };
 
 const demos: Demo[] = [
@@ -122,6 +131,35 @@ const demos: Demo[] = [
       'Group items under sticky section headers; search filters per-section.',
     section: 'Fork-only',
   },
+  // Animations
+  {
+    href: '/animated-chevron',
+    title: 'Animated chevron',
+    description:
+      'Rotate a custom chevron on open via Reanimated + `renderRightIcon(visible)`.',
+    section: 'Animations',
+  },
+  {
+    href: '/animated-stagger',
+    title: 'Staggered row enter',
+    description:
+      'Each list row slides/fades in with a per-row delay using the new `renderItem` index and Moti.',
+    section: 'Animations',
+  },
+  {
+    href: '/animated-chips',
+    title: 'Animated chips (MultiSelect)',
+    description:
+      'Chips enter/exit and reflow via Reanimated FadeIn / FadeOut / LinearTransition in `renderSelectedItem`.',
+    section: 'Animations',
+  },
+  {
+    href: '/layout-animation',
+    title: 'LayoutAnimation (zero-dep)',
+    description:
+      "RN's built-in LayoutAnimation animates chip add/remove — no peer deps required.",
+    section: 'Animations',
+  },
 ];
 
 const sections: Demo['section'][] = [
@@ -129,6 +167,7 @@ const sections: Demo['section'][] = [
   'MultiSelect',
   'SelectCountry',
   'Fork-only',
+  'Animations',
 ];
 
 export default function Home() {
