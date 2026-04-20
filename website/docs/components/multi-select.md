@@ -176,6 +176,10 @@ hint, and the chip row is an
 announce newly-added chips without the user navigating back. See
 [Accessibility](../accessibility) for the full picture.
 
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `chipRemoveAccessibilityHint` | `string` | `'Double tap to remove from selection'` | Override the `accessibilityHint` announced on each chip — useful for localization or to describe a non-standard remove gesture. |
+
 ## Imperative ref
 
 ```tsx
