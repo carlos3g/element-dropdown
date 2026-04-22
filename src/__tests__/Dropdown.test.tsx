@@ -570,6 +570,7 @@ describe('Dropdown — sections', () => {
     render(
       <Dropdown
         testID="dropdown"
+        data={[]}
         sections={sectioned}
         labelField="label"
         valueField="value"

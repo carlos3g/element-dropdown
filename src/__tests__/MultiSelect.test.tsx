@@ -530,6 +530,7 @@ describe('MultiSelect — sections', () => {
     render(
       <MultiSelect
         testID="multiselect"
+        data={[]}
         sections={sectioned}
         labelField="label"
         valueField="value"

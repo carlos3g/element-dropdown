@@ -81,9 +81,10 @@ export interface MultiSelectProps<T> {
 
   /**
    * Array of items to render in the list. Pass `sections` instead
-   * to group items under section headers.
+   * to group items under section headers (in that case, pass `[]`
+   * for `data`).
    */
-  data?: T[];
+  data: T[];
   /**
    * Groups of items to render under section headers. Pass this
    * *instead of* `data` — when present, `data` is ignored.
@@ -359,7 +360,7 @@ export interface MultiSelectProps<T> {
   /** Items shown in the list but excluded from search matches. @default [] */
   excludeSearchItems?: T[];
   /** Fires when the list scrolls within `onEndReachedThreshold` of the bottom. */
-  onEndReached?: () => void;
+  onEndReached?: (info: { distanceFromEnd: number }) => void;
   /** Distance from the end (in viewport units) at which `onEndReached` fires. @default 0.5 */
   onEndReachedThreshold?: number;
 
