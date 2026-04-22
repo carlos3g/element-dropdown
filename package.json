@@ -1,6 +1,6 @@
 {
   "name": "@carlos3g/element-dropdown",
-  "version": "2.18.0",
+  "version": "2.18.1",
   "description": "A maintained React Native dropdown and multi-select. Drop-in fork of react-native-element-dropdown, actively shipping upstream bug fixes with signed releases via npm Trusted Publishing.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
