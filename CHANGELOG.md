@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- generated:start -->
 
 
+## [v2.18.1](https://github.com/carlos3g/element-dropdown/releases/tag/v2.18.1) — 2026-04-22
+
+#### [2.18.1](https://github.com/carlos3g/element-dropdown/compare/v2.18.0...v2.18.1) (2026-04-22)
+
+### Bug Fixes
+* **types:** align data and onEndReached types with runtime ([7da1b23](https://github.com/carlos3g/element-dropdown/commit/7da1b2377ef304a7d7800e52397ee0100002c02f))
+
 ## [v2.18.0](https://github.com/carlos3g/element-dropdown/releases/tag/v2.18.0) — 2026-04-20
 
 Minor bump. Public component types now preserve the `<T>` generic across the export boundary, so every TypeScript consumer gets real inference on `onChange`, `renderItem`, `renderSelectedItem`, and friends. Runtime is unchanged — drop-in compatibility preserved (`compatibility.test.tsx` green).
