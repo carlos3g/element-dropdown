@@ -1,0 +1,127 @@
+{
+  "docs": [
+    {
+      "type": "category",
+      "label": "Getting Started",
+      "collapsible": false,
+      "collapsed": false,
+      "items": [
+        "intro",
+        "installation",
+        "quick-start",
+        "migration-from-upstream"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Components",
+      "collapsible": false,
+      "collapsed": false,
+      "items": [
+        "components/dropdown",
+        "components/multi-select",
+        "components/select-country"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Guides",
+      "collapsible": true,
+      "collapsed": false,
+      "link": {
+        "type": "generated-index",
+        "title": "Recipes",
+        "description": "Task-oriented recipes for common customization, styling, and integration scenarios.",
+        "slug": "/guides"
+      },
+      "items": [
+        "guides/animations",
+        {
+          "type": "category",
+          "label": "Rendering",
+          "collapsible": true,
+          "collapsed": false,
+          "link": {
+            "type": "generated-index",
+            "title": "Rendering recipes",
+            "description": "Replace parts of the default layout — trigger body, list rows, icons, modal header, empty state, section headers — with custom JSX.",
+            "slug": "/guides/rendering"
+          },
+          "items": [
+            "guides/custom-trigger",
+            "guides/icon-per-state",
+            "guides/modal-header",
+            "guides/empty-state",
+            "guides/sectioned-lists",
+            "guides/multi-select-inside-mode",
+            "guides/nested-in-modal"
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Search",
+          "collapsible": true,
+          "collapsed": false,
+          "link": {
+            "type": "generated-index",
+            "title": "Search recipes",
+            "description": "Tune the built-in search: match against different fields, write a custom matcher, forward TextInput props, or react to cleared search.",
+            "slug": "/guides/search"
+          },
+          "items": [
+            "guides/custom-search-field",
+            "guides/custom-search-matcher",
+            "guides/on-change-text",
+            "guides/search-input-props",
+            "guides/text-input-passthrough"
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Data & interaction",
+          "collapsible": true,
+          "collapsed": false,
+          "link": {
+            "type": "generated-index",
+            "title": "Data & interaction recipes",
+            "description": "Control which items appear, how they order, when the list loads, and when it opens — disabled items, exclusion, pagination, imperative ref.",
+            "slug": "/guides/interaction"
+          },
+          "items": [
+            "guides/disabled-items",
+            "guides/exclusion",
+            "guides/selected-ordering",
+            "guides/end-reached-pagination",
+            "guides/imperative-open-close"
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Accessibility & text",
+          "collapsible": true,
+          "collapsed": false,
+          "link": {
+            "type": "generated-index",
+            "title": "Accessibility & text recipes",
+            "description": "Enlarge tap targets, respect the system font scale, and other a11y / text knobs.",
+            "slug": "/guides/a11y"
+          },
+          "items": [
+            "guides/hit-slop",
+            "guides/font-scaling"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Reference",
+      "collapsible": false,
+      "collapsed": false,
+      "items": [
+        "accessibility",
+        "why-this-fork"
+      ]
+    }
+  ]
+}
