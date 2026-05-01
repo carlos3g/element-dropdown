@@ -85,7 +85,7 @@
     "@types/react-test-renderer": "~18.3.0",
     "commitlint": "^20",
     "del-cli": "^7",
-    "eslint": "^9.x",
+    "eslint": "^10.x",
     "eslint-config-prettier": "^10",
     "eslint-plugin-ft-flow": "^3",
     "eslint-plugin-prettier": "^5",
