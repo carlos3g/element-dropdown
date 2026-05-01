@@ -76,7 +76,7 @@
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@react-native/eslint-config": "^0.85.1",
-    "@release-it/conventional-changelog": "^10",
+    "@release-it/conventional-changelog": "^11",
     "@testing-library/jest-native": "^5",
     "@testing-library/react-native": "^13",
     "@types/jest": "^30",
