@@ -3013,6 +3013,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pkgr/core@npm:^0.3.6":
+  version: 0.3.6
+  resolution: "@pkgr/core@npm:0.3.6"
+  checksum: 10c0/153f0f4563f505faeba13c733efa0e05e467ce1c6b941055a5fd3b4560da60fbf1dff4b11da0075f034ddda11f2842b90395f60895dde5825875b616edccc11c
+  languageName: node
+  linkType: hard
+
 "@react-native/assets-registry@npm:0.76.9":
   version: 0.76.9
   resolution: "@react-native/assets-registry@npm:0.76.9"
@@ -3154,12 +3161,12 @@ __metadata:
   linkType: hard
 
 "@react-native/eslint-config@npm:^0.85.1":
-  version: 0.85.1
-  resolution: "@react-native/eslint-config@npm:0.85.1"
+  version: 0.85.3
+  resolution: "@react-native/eslint-config@npm:0.85.3"
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@babel/eslint-parser": "npm:^7.25.1"
-    "@react-native/eslint-plugin": "npm:0.85.1"
+    "@react-native/eslint-plugin": "npm:0.85.3"
     "@typescript-eslint/eslint-plugin": "npm:^8.36.0"
     "@typescript-eslint/parser": "npm:^8.36.0"
     eslint-config-prettier: "npm:^8.5.0"
@@ -3172,14 +3179,14 @@ __metadata:
   peerDependencies:
     eslint: ^8.0.0 || ^9.0.0
     prettier: ">=2"
-  checksum: 10c0/61bd5970db1a4bef30e472e80de30bb2af92d157675fc879990cbb742bce8d1ff82c90b9d3fc6e0df7bdb268c7b2870dab9bf90d85f7dcecc263eac785658d36
+  checksum: 10c0/d33ca9019c156750efb696e8c068a83800ecc8dedff7effc24778ee35b45099f1d5533cd91acd4d2e3aeb252628a9f8bb8b5c3b1e55489ae5795b4f374d5d05d
   languageName: node
   linkType: hard
 
-"@react-native/eslint-plugin@npm:0.85.1":
-  version: 0.85.1
-  resolution: "@react-native/eslint-plugin@npm:0.85.1"
-  checksum: 10c0/3be6c849a99ca900faa88b88d02c3de23ca78b3d91cd7bbc9c72368b4e78abd5a75a7ffaafaaf4702118e86c8ff30027c93ad27c67af81992efec681d69deeb8
+"@react-native/eslint-plugin@npm:0.85.3":
+  version: 0.85.3
+  resolution: "@react-native/eslint-plugin@npm:0.85.3"
+  checksum: 10c0/c5dd55b55f2f331b75f686dac03a01c72699f04bfa9502c6b482bdbdfd7b7b7d20d69bd4066f7623d96a2552cac8f3e36a53fe8e4d4abde9c9292b861f84a1ee
   languageName: node
   linkType: hard
 
@@ -5810,11 +5817,11 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-prettier@npm:^5":
-  version: 5.5.5
-  resolution: "eslint-plugin-prettier@npm:5.5.5"
+  version: 5.5.6
+  resolution: "eslint-plugin-prettier@npm:5.5.6"
   dependencies:
     prettier-linter-helpers: "npm:^1.0.1"
-    synckit: "npm:^0.11.12"
+    synckit: "npm:^0.11.13"
   peerDependencies:
     "@types/eslint": ">=8.0.0"
     eslint: ">=8.0.0"
@@ -5825,7 +5832,7 @@ __metadata:
       optional: true
     eslint-config-prettier:
       optional: true
-  checksum: 10c0/091449b28c77ab2efbbf674e977181f2c8453d95a4df68218bddd87a4dfaa9ecc4eda60164e416f5986fb5d577e66e8d8e1e23d81e8555f8d735375598b03257
+  checksum: 10c0/af37126c947ff3e87ff1ea76408db8cb1c7da966ebdaba68c6dd5924da7eb1b43b1abc4796d753a97b1bc26ea94c5497093e6ab9f8588fffe558d5a554e19bbf
   languageName: node
   linkType: hard
 
@@ -8498,90 +8505,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lefthook-darwin-arm64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-darwin-arm64@npm:2.1.6"
+"lefthook-darwin-arm64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-darwin-arm64@npm:2.1.9"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-darwin-x64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-darwin-x64@npm:2.1.6"
+"lefthook-darwin-x64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-darwin-x64@npm:2.1.9"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-freebsd-arm64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-freebsd-arm64@npm:2.1.6"
+"lefthook-freebsd-arm64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-freebsd-arm64@npm:2.1.9"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-freebsd-x64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-freebsd-x64@npm:2.1.6"
+"lefthook-freebsd-x64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-freebsd-x64@npm:2.1.9"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-linux-arm64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-linux-arm64@npm:2.1.6"
+"lefthook-linux-arm64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-linux-arm64@npm:2.1.9"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-linux-x64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-linux-x64@npm:2.1.6"
+"lefthook-linux-x64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-linux-x64@npm:2.1.9"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-openbsd-arm64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-openbsd-arm64@npm:2.1.6"
+"lefthook-openbsd-arm64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-openbsd-arm64@npm:2.1.9"
   conditions: os=openbsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-openbsd-x64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-openbsd-x64@npm:2.1.6"
+"lefthook-openbsd-x64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-openbsd-x64@npm:2.1.9"
   conditions: os=openbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"lefthook-windows-arm64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-windows-arm64@npm:2.1.6"
+"lefthook-windows-arm64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-windows-arm64@npm:2.1.9"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"lefthook-windows-x64@npm:2.1.6":
-  version: 2.1.6
-  resolution: "lefthook-windows-x64@npm:2.1.6"
+"lefthook-windows-x64@npm:2.1.9":
+  version: 2.1.9
+  resolution: "lefthook-windows-x64@npm:2.1.9"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
 "lefthook@npm:^2":
-  version: 2.1.6
-  resolution: "lefthook@npm:2.1.6"
+  version: 2.1.9
+  resolution: "lefthook@npm:2.1.9"
   dependencies:
-    lefthook-darwin-arm64: "npm:2.1.6"
-    lefthook-darwin-x64: "npm:2.1.6"
-    lefthook-freebsd-arm64: "npm:2.1.6"
-    lefthook-freebsd-x64: "npm:2.1.6"
-    lefthook-linux-arm64: "npm:2.1.6"
-    lefthook-linux-x64: "npm:2.1.6"
-    lefthook-openbsd-arm64: "npm:2.1.6"
-    lefthook-openbsd-x64: "npm:2.1.6"
-    lefthook-windows-arm64: "npm:2.1.6"
-    lefthook-windows-x64: "npm:2.1.6"
+    lefthook-darwin-arm64: "npm:2.1.9"
+    lefthook-darwin-x64: "npm:2.1.9"
+    lefthook-freebsd-arm64: "npm:2.1.9"
+    lefthook-freebsd-x64: "npm:2.1.9"
+    lefthook-linux-arm64: "npm:2.1.9"
+    lefthook-linux-x64: "npm:2.1.9"
+    lefthook-openbsd-arm64: "npm:2.1.9"
+    lefthook-openbsd-x64: "npm:2.1.9"
+    lefthook-windows-arm64: "npm:2.1.9"
+    lefthook-windows-x64: "npm:2.1.9"
   dependenciesMeta:
     lefthook-darwin-arm64:
       optional: true
@@ -8605,7 +8612,7 @@ __metadata:
       optional: true
   bin:
     lefthook: bin/index.js
-  checksum: 10c0/3ccbe60951ebf59e35e02ca10dc8942a4455ec106f0f14a5fed2e40f000b5b57190594f3be87715d5a9a8b0cf93de33902cbd3c94688e116ffc07ad1760cfe9e
+  checksum: 10c0/676d9798942439d1cd5373bb0b2c9907f6a8097b29c05cc028d87d897d2a2cfe15a8f7e4f40b02fa93cd1ae0f02528f24053a10fb5c5967210a9c23f3c7b5059
   languageName: node
   linkType: hard
 
@@ -10388,11 +10395,11 @@ __metadata:
   linkType: hard
 
 "pod-install@npm:^1":
-  version: 1.0.15
-  resolution: "pod-install@npm:1.0.15"
+  version: 1.0.19
+  resolution: "pod-install@npm:1.0.19"
   bin:
-    pod-install: build/index.js
-  checksum: 10c0/d54daba7043ceb39c22e72310494003429b3a24c8338c49b25f5228ddf5c5f5d4896468502b163c92d8cff5b3f4b59c9ec1e65cdb27a0e90d623a9a180bd3e25
+    pod-install: bin/pod-install.js
+  checksum: 10c0/d84ed582b4228c5e9b1d0cf22418822bb7ff448b00f2d67880f543f1d40a812935b46e421fb81b059b3eb8291e77e8147db01070c8dc618e60c7703423a0870a
   languageName: node
   linkType: hard
 
@@ -11845,7 +11852,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:^0.11.12, synckit@npm:^0.11.8":
+"synckit@npm:^0.11.13":
+  version: 0.11.13
+  resolution: "synckit@npm:0.11.13"
+  dependencies:
+    "@pkgr/core": "npm:^0.3.6"
+  checksum: 10c0/5a6c19f4f79045aaa7994106401bff6dbe7cca23a6d0a0723ff14eb8b1bebeb4a71729118f6914905598e304ea2fa13509885e11ba07d92e7cb68a06740cb328
+  languageName: node
+  linkType: hard
+
+"synckit@npm:^0.11.8":
   version: 0.11.12
   resolution: "synckit@npm:0.11.12"
   dependencies:
